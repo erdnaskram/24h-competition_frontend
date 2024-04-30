@@ -1,0 +1,318 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../Content/bootstrap.min.css">
+    <link href="../Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+    <style type="text/css">
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        .abc {
+            min-width: 40px;
+            min-height: 40px;
+            margin-bottom: 15px;
+        }
+
+        .activeSwimmer {
+            transition: all 0.5s;
+        }
+
+        .activeSwimmer h2 {
+            display: inline;
+        }
+
+        .activeSwimmer .f-info {
+            display: inline;
+        }
+
+        .l-remarks {
+            font-weight: bold;
+        }
+
+        #dialog {
+            width: 800px;
+        } 
+    </style>
+    <title>24h - Check In</title>
+</head>
+<body>
+    <header>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">Einteilen</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <!--<ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a id="nav-message" class="nav-link" href="#">Nachricht senden</a>
+                    </li>
+                </ul>-->
+                <form class="form-inline mt-2 mt-md-0">
+                    <input id="search" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                    <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Begin page content -->
+    <main role="main" class="container-fluid" style="margin-top: 60px">
+        <div class="row">
+            <div class="col-sm-9">
+                <div class="text-center">
+                    <button class="abc">A</button>
+                    <button class="abc">B</button>
+                    <button class="abc">C</button>
+                    <button class="abc">D</button>
+                    <button class="abc">E</button>
+                    <button class="abc">F</button>
+                    <button class="abc">G</button>
+                    <button class="abc">H</button>
+                    <button class="abc">I</button>
+                    <button class="abc">J</button>
+                    <button class="abc">K</button>
+                    <button class="abc">L</button>
+                    <button class="abc">M</button>
+                    <button class="abc">N</button>
+                    <button class="abc">O</button>
+                    <button class="abc">P</button>
+                    <button class="abc">Q</button>
+                    <button class="abc">R</button>
+                    <button class="abc">S</button>
+                    <button class="abc">T</button>
+                    <button class="abc">U</button>
+                    <button class="abc">V</button>
+                    <button class="abc">W</button>
+                    <button class="abc">X</button>
+                    <button class="abc">Y</button>
+                    <button class="abc">Z</button>
+                    <button class="abc">Ä</button>
+                    <button class="abc">Ö</button>
+                    <button class="abc">Ü</button>
+                </div>
+                <div id="activeSwimmers" class="container-fluid">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div id="lanes" class="container-fluid">
+                </div>
+                <div style="margin-top: 15px">
+                    Farben: Gelb ab <input id="limitYellow" type="number" value="6" style="width: 45px; text-align: right" /> Rot ab <input id="limitRed" type="number" value="11" " style="width: 45px; text-align: right" />
+                </div>
+
+                <div id="totalDistance" style="margin-top: 15px; text-align: center; font-weight: bold; font-size: 40px">
+                    -- km
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="dialog" title="Bahn zuweisen" style="display:none">
+        <p>
+            <button id="lane1" style="width: 100%; min-height: 50px;" data-lane="1">Bahn 1</button>
+        </p>
+        <p>
+            <button id="lane2" style="width: 100%; min-height: 50px;" data-lane="2">Bahn 2</button>
+        </p>
+        <p>
+            <button id="lane3" style="width: 100%; min-height: 50px;" data-lane="3">Bahn 3</button>
+        </p>
+        <p>
+            <button id="lane4" style="width: 100%; min-height: 50px;" data-lane="4">Bahn 4</button>
+        </p>
+    </div>
+
+    <script src="../Scripts/jquery-3.3.1.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="../Scripts/umd/popper.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        function updateSwimmer(swimmer, participant) {
+            swimmer.find('.f-name').text(participant.id.toString() + ' ' + participant.name + ' (' + participant.age + 'J, ' + ' ' + (participant.gender == 'm' ? '♂' : '♀') + ')');
+            swimmer.find('.distance').text(participant.lanes.toString() + ' Bahnen, ' + (participant.lanes * 25).toString() + ' m');
+            swimmer.data('lastCount', new Date(new Date() - participant.lastChangesSecondsAgo * 1000))
+            swimmer.data('currentAverage', participant.averageTimeSeconds || 120);
+            swimmer.data('participantId', participant.id);
+            swimmer.attr('participant', participant.id);
+            swimmer.find('.countdown').text(formatTime(participant.averageTimeSeconds || 120));
+            swimmer.find('.f-remarks').text(participant.lane ? ((participant.isActive ? 'Schwimmt' : 'Eingeteilt auf') + ' Bahn ' + participant.lane) : '');
+        }
+
+        function showSearchResult(result) {
+            let container = 'activeSwimmers';
+            $('#' + container).empty();
+
+            for (let i = 0; i < result.length; i++) {
+                let participant = result[i];
+
+                let swimmer = $('.activeSwimmer[participant="' + participant.id + '"]');
+                if (!swimmer.length)
+                    swimmer = $('<div class="row activeSwimmer" style="border: 1px solid black; min-height: 45px"><div class="col" style="overflow: hidden; white-space: nowrap"><h2 class="f-name"></h2><div class="f-info"> (<span class="countdown">--:--</span>, <span class="distance">-- Bahnen / -- m</span>) <span class="l-remarks f-remarks"></span></div></div></div>').appendTo('#' + container);
+                else if (swimmer.parent().attr('id') != container) {
+                    var data = swimmer.data();
+                    swimmer.remove();
+                    $('#' + container).append(swimmer);
+                    swimmer.data(data);
+                }
+
+                updateSwimmer(swimmer, participant);
+            }
+        }
+
+        $(document).ready(function () {
+            const hub = new signalR.HubConnectionBuilder().withUrl("/participantHub").build();
+
+            hub.on('updateParticipant', function (participant) {
+                let swimmer = $('.activeSwimmer[participant="' + participant.id + '"]');
+                if (swimmer.length) {
+                    updateSwimmer(swimmer, participant);
+                }
+            });
+
+            hub.on('updateLaneInfo', function (laneNo, info) {
+                let limitYellow = Number.parseInt($('#limitYellow').val() || 6);
+                let limitRed = Number.parseInt($('#limitRed').val() || 11)
+
+                let container = 'lanes';
+                let lane = $('.laneInfo[laneNo="' + laneNo + '"]');
+                if (!lane.length)
+                    lane = $('<div class="row laneInfo" style="border: 1px solid black;"><div class="col" style="overflow: hidden; white-space: nowrap"><h2 class="f-name"></h2><div class="f-info">Anzahl <span class="count"></span>, Geschw <span class="speed"></span></div></div></div>').appendTo('#' + container);
+                else if (lane.parent().attr('id') != container) {
+                    var data = lane.data();
+                    lane.remove();
+                    $('#' + container).append(lane);
+                    lane.data(data);
+                }
+                lane.find('.f-name').text('Bahn ' + laneNo);
+                lane.find('.count').text('' + info.participants);
+                lane.find('.speed').text(formatTime(info.averageTimeSeconds));
+                lane.data('lane', laneNo);
+                lane.attr('laneNo', laneNo);
+                lane.css('background-color', info.participants >= limitRed ? '#cc3232' : (info.participants >= limitYellow ? '#e7b416' : '#99c140'));
+
+                let dialogLane = $('#dialog').find('#lane' + laneNo);
+                if (!dialogLane.length) {
+                    dialogLane = $('<button id="lane' + laneNo + '" style="width: 100%; min-height: 50px;" data-lane="' + laneNo + '">Bahn ' + laneNo + '</button>');
+                    $("<p />").append(dialogLane).appendTo($('#dialog'));
+                }
+
+                dialogLane.text('Bahn ' + laneNo + ' (' + info.participants + ' / ' + formatTime(info.averageTimeSeconds) + ')')
+                    .css('background-color', info.participants >= limitRed ? '#cc3232' : (info.participants >= limitYellow ? '#e7b416' : '#99c140'));
+            });
+
+            hub.on('updateTotalLanes', function (totalLanes) {
+                const totalDistance = $('#totalDistance');
+                totalDistance.text(`Gesamt: ${numberWithThoundSeparator(totalLanes * 25)} m`);
+            });
+
+            async function connect() {
+                try {
+                    await hub.start();
+                    console.log("SignalR Connected.");
+                    await hub.invoke('registerCheckin');
+                } catch (err) {
+                    console.log(err);
+                    setTimeout(connect, 5000);
+                }
+            };
+
+            hub.onclose(async () => {
+                await connect();
+            });
+
+            connect();
+            $('input#search').focus();
+
+            $('#limitYellow').change(async function () {
+                await hub.invoke('registerCheckin');
+            });
+
+            $('#limitRed').change(async function () {
+                await hub.invoke('registerCheckin');
+            });
+
+            $('.abc').click(function () {
+                $('input#search').val('');
+                $('input#search').focus();
+                const letter = $(this).text();
+                $.ajax({
+                    url: '/checkin/SearchByPrefix/' + letter,
+                    method: 'POST',
+                    success: function (result) {
+                        showSearchResult(result);
+                    }
+                });
+            });
+
+            $('input#search').keyup(function () {
+                $.ajax({
+                    url: '/checkin/SearchAsYouType?filter=' + encodeURI($('input#search').val() || ''),
+                    method: 'POST',
+                    success: function (result) {
+                        showSearchResult(result);
+                    }
+                });
+            });
+
+            $('#dialog').on('click', 'button', async function () {
+                const lane = $(this).data('lane');
+
+                await hub.invoke('assignToLane', lane, $("#dialog").data('participantId'));
+
+                $('#dialog').dialog('close');
+                $('input#search').focus();
+            });
+
+            $('#activeSwimmers').on("click", ".activeSwimmer", function (e) {
+                const elm = $(this);
+                const data = elm.data();
+
+                e.preventDefault();
+                $("#dialog").data('participantId', elm.data('participantId'));
+                $("#dialog").dialog({
+                    resizable: false,
+                    modal: true,
+                    title: `${elm.find('.f-name').text()}, Durchschnitts-Zeit: ${elm.find('.countdown').text()}`,
+                    width: 750,
+                    buttons: {
+                        Abbrechen: function () {
+                            $(this).dialog("close");
+                            $('input#search').focus();
+                        }
+                    }
+                });
+
+                return false;
+            });
+        });
+
+        function formatTime(seconds) {
+            const prefix = seconds < 0 ? '-' : '';
+            seconds = Math.abs(seconds);
+
+            const days = Math.floor(seconds / (24 * 60 * 60));
+            let leftSec = seconds - days * 24 * 60 * 60;
+
+            const hrs = Math.floor(leftSec / (60 * 60));
+            leftSec = leftSec - hrs * 60 * 60;
+
+            const min = Math.floor(leftSec / (60));
+            leftSec = leftSec - min * 60;
+
+            return prefix + min + ':' + (leftSec >= 10 ? leftSec : '0' + leftSec.toString());
+        }
+
+        function numberWithThoundSeparator(x) {
+            return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ".");
+        }
+    </script>
+</body>
+</html>
