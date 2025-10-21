@@ -1,0 +1,384 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../Content/bootstrap.min.css">
+    <link href="../Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+    <style type="text/css">
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        #inactiveSwimmers .f-edit {
+            display: none;
+        }
+
+        #inactiveSwimmers .f-info {
+            display: none;
+        }
+
+        #inactiveSwimmers .f-attributes {
+            display: none;
+        }
+    </style>
+    <title>24h - Bahn {{{lane}}}</title>
+</head>
+<body>
+    <header>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">Bahn {{Lane}}</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <!--<a id="nav-message" class="nav-link" href="#">Nachricht senden</a>-->
+                    </li>
+                </ul>
+                <form class="form-inline mt-2 mt-md-0">
+                    <!--<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <div id="dialog" title="Bearbeiten" style="display:none">
+        <p>
+            Badebekleidung<br />
+            <input id="ClothingTypeShorts" name="ClothingType" type="radio" value="Shorts" /><label for="ClothingTypeShorts"><img src="../Content/ClothingType/Shorts.jpg" width="50" height="50" /></label>
+            <input id="ClothingTypeTrunks" name="ClothingType" type="radio" value="Trunks" /><label for="ClothingTypeTrunks"><img src="../Content/ClothingType/Trunks.jpg" width="50" height="50" /></label>
+            <input id="ClothingTypeSwimSuit" name="ClothingType" type="radio" value="SwimSuit" /><label for="ClothingTypeSwimSuit"><img src="../Content/ClothingType/SwimSuit.jpg" width="50" height="50" /></label>
+            <input id="ClothingTypeBikini" name="ClothingType" type="radio" value="Bikini" /><label for="ClothingTypeBikini"><img src="../Content/ClothingType/Bikini.jpg" width="50" height="50" /></label>
+            <br />
+            <input id="ClothingColorRed" name="ClothingColor" type="radio" value="red" /><label for="ClothingColorRed"><img src="../Content/Color.png" width="50" height="50" style="background-color: red; border: 1px dashed black;" /></label>
+            <input id="ClothingColorBlue" name="ClothingColor" type="radio" value="blue" /><label for="ClothingColorBlue"><img src="../Content/Color.png" width="50" height="50" style="background-color: blue; border: 1px dashed black;" /></label>
+            <input id="ClothingColorGreen" name="ClothingColor" type="radio" value="green" /><label for="ClothingColorGreen"><img src="../Content/Color.png" width="50" height="50" style="background-color: green; border: 1px dashed black;" /></label>
+            <input id="ClothingColorDarkmagenta" name="ClothingColor" type="radio" value="darkmagenta" /><label for="ClothingColorDarkmagenta"><img src="../Content/Color.png" width="50" height="50" style="background-color: darkmagenta; border: 1px dashed black;" /></label>
+            <input id="ClothingColorChartreuse" name="ClothingColor" type="radio" value="chartreuse" /><label for="ClothingColorChartreuse"><img src="../Content/Color.png" width="50" height="50" style="background-color: chartreuse; border: 1px dashed black;" /></label>
+            <input id="ClothingColorBlack" name="ClothingColor" type="radio" value="black" /><label for="ClothingColorBlack"><img src="../Content/Color.png" width="50" height="50" style="background-color: black; border: 1px dashed black;" /></label>
+            <input id="ClothingColorWhite" name="ClothingColor" type="radio" value="white" /><label for="ClothingColorWhite"><img src="../Content/Color.png" width="50" height="50" style="background-color: white; border: 1px dashed black;" /></label>
+            <input id="ClothingColorOrange" name="ClothingColor" type="radio" value="orange" /><label for="ClothingColorOrange"><img src="../Content/Color.png" width="50" height="50" style="background-color: orange; border: 1px dashed black;" /></label>
+            <input id="ClothingColorPink" name="ClothingColor" type="radio" value="hotpink" /><label for="ClothingColorPink"><img src="../Content/Color.png" width="50" height="50" style="background-color: hotpink; border: 1px dashed black;" /></label>
+        </p>
+        <p>
+            Schwimmbrille<br />
+            <input id="GooglesColorNone" name="GooglesColor" type="radio" value="" /><label for="GooglesColorNone"><img src="../Content/GooglesNone.png" width="50" height="50" style="background-color: none" /></label>
+            <input id="GooglesColorRed" name="GooglesColor" type="radio" value="red" /><label for="GooglesColorRed"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: red; border: 1px dashed black;" /></label>
+            <input id="GooglesColorBlue" name="GooglesColor" type="radio" value="blue" /><label for="GooglesColorBlue"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: blue; border: 1px dashed black;" /></label>
+            <input id="GooglesColorGreen" name="GooglesColor" type="radio" value="green" /><label for="GooglesColorGreen"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: green; border: 1px dashed black;" /></label>
+            <input id="GooglesColorDarkmagenta" name="GooglesColor" type="radio" value="darkmagenta" /><label for="GooglesColorDarkmagenta"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: darkmagenta; border: 1px dashed black;" /></label>
+            <input id="GooglesColorChartreuse" name="GooglesColor" type="radio" value="chartreuse" /><label for="GooglesColorChartreuse"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: chartreuse; border: 1px dashed black;" /></label>
+            <input id="GooglesColorBlack" name="GooglesColor" type="radio" value="black" /><label for="GooglesColorBlack"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: black; border: 1px dashed black;" /></label>
+            <input id="GooglesColorWhite" name="GooglesColor" type="radio" value="white" /><label for="GooglesColorWhite"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: white; border: 1px dashed black;" /></label>
+            <input id="GooglesColorOrange" name="GooglesColor" type="radio" value="orange" /><label for="GooglesColorOrange"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: orange; border: 1px dashed black;" /></label>
+            <input id="GooglesColorPink" name="GooglesColor" type="radio" value="hotpink" /><label for="GooglesColorPink"><img src="../Content/GooglesColor.png" width="50" height="50" style="background-color: hotpink; border: 1px dashed black;" /></label>
+        </p>
+        <p>
+            Badekappe<br />
+            <input id="HatColorNone" name="HatColor" type="radio" value="" /><label for="HatColorNone"><img src="../Content/HatNone.png" width="50" height="50" style="background-color: none" /></label>
+            <input id="HatColorRed" name="HatColor" type="radio" value="red" /><label for="HatColorRed"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: red; border: 1px dashed black;" /></label>
+            <input id="HatColorBlue" name="HatColor" type="radio" value="blue" /><label for="HatColorBlue"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: blue; border: 1px dashed black;" /></label>
+            <input id="HatColorGreen" name="HatColor" type="radio" value="green" /><label for="HatColorGreen"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: green; border: 1px dashed black;" /></label>
+            <input id="HatColorDarkmagenta" name="HatColor" type="radio" value="darkmagenta" /><label for="HatColorDarkmagenta"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: darkmagenta; border: 1px dashed black;" /></label>
+            <input id="HatColorChartreuse" name="HatColor" type="radio" value="chartreuse" /><label for="HatColorChartreuse"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: chartreuse; border: 1px dashed black;" /></label>
+            <input id="HatColorBlack" name="HatColor" type="radio" value="black" /><label for="HatColorBlack"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: black; border: 1px dashed black;" /></label>
+            <input id="HatColorWhite" name="HatColor" type="radio" value="white" /><label for="HatColorWhite"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: white; border: 1px dashed black;" /></label>
+            <input id="HatColorOrange" name="HatColor" type="radio" value="orange" /><label for="HatColorOrange"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: orange; border: 1px dashed black;" /></label>
+            <input id="HatColorPink" name="HatColor" type="radio" value="hotpink" /><label for="HatColorPink"><img src="../Content/HatColor.png" width="50" height="50" style="background-color: hotpink; border: 1px dashed black;" /></label>
+            <input id="HatSchonungen" name="HatColor" type="radio" value="schonungen" /><label for="HatSchonungen"><img src="../Content/HatSchonungen.png" width="50" height="50" style="border: 1px dashed black;" /></label>
+        </p>
+        <p>
+            Haare<br />
+            <input id="HairColorNone" name="HairColor" type="radio" value="" /><label for="HairColorNone"><img src="../Content/HairNone.png" width="50" height="50" style="background-color: none" /></label>
+            <input id="HairColor1" name="HairColor" type="radio" value="sandybrown" /><label for="HairColor1"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: sandybrown; border: 1px dashed black;" /></label>
+            <input id="HairColor2" name="HairColor" type="radio" value="saddlebrown" /><label for="HairColor2"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: saddlebrown; border: 1px dashed black;" /></label>
+            <input id="HairColor3" name="HairColor" type="radio" value="gold" /><label for="HairColor3"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: gold; border: 1px dashed black;" /></label>
+            <input id="HairColor4" name="HairColor" type="radio" value="gainsboro" /><label for="HairColor4"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: gainsboro; border: 1px dashed black;" /></label>
+            <input id="HairColor5" name="HairColor" type="radio" value="ghostwhite" /><label for="HairColor5"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: ghostwhite; border: 1px dashed black;" /></label>
+            <input id="HairColorBlack" name="HairColor" type="radio" value="black" /><label for="HairColorBlack"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: black; border: 1px dashed black;" /></label>
+            <input id="HairColorRed" name="HairColor" type="radio" value="red" /><label for="HairColorRed"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: red; border: 1px dashed black;" /></label>
+            <input id="HairColorBlue" name="HairColor" type="radio" value="blue" /><label for="HairColorBlue"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: blue; border: 1px dashed black;" /></label>
+            <input id="HairColorGreen" name="HairColor" type="radio" value="green" /><label for="HairColorGreen"><img src="../Content/HairColor.png" width="50" height="50" style="background-color: green; border: 1px dashed black;" /></label>
+        </p>
+        <p>
+            Sonstiges<br />
+            <input id="Tattoo" name="Tattoo" type="checkbox" value="1" /><label for="Tattoo"><img src="../Content/Tattoo.png" width="50" height="50" style="background-color: none" /></label>
+            <input id="Headphones" name="Headphones" type="checkbox" value="1" /><label for="Headphones"><img src="../Content/Headphones.png" width="50" height="50" style="background-color: none" /></label>
+        </p>
+        <p>
+            Bemerkung<br />
+            <input type="text" name="Remarks" />
+        </p>
+    </div>
+
+    <div id="dialog2" title="Nachricht senden" style="display:none">
+        <p>Nachricht an den Bahnen-Einteiler</p>
+        <p>
+            <button id="pause" style="width: 100%">Brauche Ablösung (Pipi-Pause)</button>
+        </p>
+        <p>
+            <button id="question" style="width: 100%">Habe eine Frage (bitte vorbeikommen)</button>
+        </p>
+    </div>
+
+    <!-- Begin page content -->
+    <main role="main" class="container-fluid" style="margin-top: 60px">
+        <div class="row">
+            <div class="col-sm-9">
+                <div id="activeSwimmers" class="container-fluid">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div id="inactiveSwimmers" class="container-fluid">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../Scripts/jquery-3.3.1.min.js"></script>
+    <script src="../lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="../Scripts/jquery-ui-1.12.1.min.js"></script>
+    <script src="../Scripts/umd/popper.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const lane = Number.parseInt(window.location.pathname.replace(/.+\/([0-9]+)$/, "$1"));
+            document.title = '24h - Bahn ' + lane;
+            $('.navbar-brand').text('Bahn ' + lane);
+            
+            const hub = new signalR.HubConnectionBuilder().withUrl("/participantHub").build();
+            hub.on('addParticipant', function (participant) {
+                let container = participant.isActive ? 'activeSwimmers' : 'inactiveSwimmers';
+                let swimmer = $('.activeSwimmer[participant="' + participant.id + '"]');
+                if (!swimmer.length)
+                    swimmer = $('<div class="row activeSwimmer" style="border: 1px solid black;"><div class="col" style="overflow: hidden; white-space: nowrap"><div class="f-edit" style="float: right; width: 75px; height: 50px; margin: 5px; padding-left: 20px; background-image: url(../components/content/pen_blue.png); background-repeat: no-repeat; background-position: center; background-color: red;"></div><div class="f-attributes"></div><h2 class="f-name"></h2><div class="f-info">Nächster Anschlag: <span class="countdown">--:--</span>, Distanz: <span class="distance">-- Bahnen / -- m</span></div></div></div>').appendTo('#' + container);
+                else if (swimmer.parent().attr('id') != container) {
+                    var data = swimmer.data();
+                    swimmer.remove();
+                    $('#' + container).append(swimmer);
+                    swimmer.data(data);
+                }
+                swimmer.find('.f-name').text(participant.id.toString() + ' ' + participant.name + ' (' + participant.age + 'J, ' + ' ' + (participant.gender == 'm' ? '♂' : '♀') + ')');
+                swimmer.find('.distance').text(participant.lanes.toString() + ' Bahnen, ' + (participant.lanes * 25).toString() + ' m ' + (participant.remarks || ''));
+                swimmer.data('lastCount', new Date(new Date() - participant.lastChangesSecondsAgo * 1000))
+                swimmer.data('currentAverage', participant.averageTimeSeconds || 120);
+                swimmer.data('participantId', participant.id);
+                swimmer.data('clothingType', participant.clothingType);
+                swimmer.data('clothingColor', participant.clothingColor);
+                swimmer.data('googlesColor', participant.googlesColor);
+                swimmer.data('hairColor', participant.hairColor);
+                swimmer.data('hatColor', participant.hatColor);
+                swimmer.data('tattoo', participant.tattoo);
+                swimmer.data('headphones', participant.headphones);
+                swimmer.data('gender', participant.gender);
+                swimmer.data('remarks', participant.remarks);
+                swimmer.data('isActive', participant.isActive);
+                swimmer.attr('participant', participant.id);
+
+                swimmer.find('.f-attributes').empty();
+                if (swimmer.data('tattoo'))
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/Tattoo.png);"></div>').appendTo(swimmer.find('.f-attributes'));
+                if (swimmer.data('headphones'))
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/Headphones.png);"></div>').appendTo(swimmer.find('.f-attributes'));
+                if (swimmer.data('googlesColor') && swimmer.data('googlesColor') != 'none')
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/GooglesColor.png);background-color: ' + (swimmer.data('googlesColor') || 'black') + ';"></div>').appendTo(swimmer.find('.f-attributes'));
+                if (swimmer.data('hairColor') && swimmer.data('hairColor') != 'none')
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/HairColor.png);background-color: ' + (swimmer.data('hairColor') || 'black') + ';"></div>').appendTo(swimmer.find('.f-attributes'));
+                if (swimmer.data('hatColor') == 'schonungen')
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/HatSchonungen.png);"></div>').appendTo(swimmer.find('.f-attributes'));
+                else if (swimmer.data('hatColor') && swimmer.data('hatColor') != 'none')
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/HatColor.png);background-color: ' + (swimmer.data('hatColor') || 'black') + ';"></div>').appendTo(swimmer.find('.f-attributes'));
+                if (swimmer.data('clothingType'))
+                    $('<div style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../content/ClothingType/Transparent/' + swimmer.data('clothingType') + '.png);background-color: ' + (swimmer.data('clothingColor') || 'black') + ';"></div>').appendTo(swimmer.find('.f-attributes'));
+
+                updateSwimmer(swimmer);
+            });
+
+            hub.on('removeParticipant', function (participantId) {
+                let swimmer = $('.activeSwimmer[participant="' + participantId + '"]');
+                swimmer.remove();
+            });
+
+            async function connect() {
+                try {
+                    await hub.start();
+                    console.log("SignalR Connected.");
+                    await hub.invoke('register', lane);
+                } catch (err) {
+                    console.log(err);
+                    setTimeout(connect, 5000);
+                }
+            };
+
+            hub.onclose(async () => {
+                await connect();
+            });
+
+            connect();
+
+            function updateSwimmer(swimmer) {
+                const timeElapsed = Math.floor((swimmer.data('lastCount') - new Date()) / 1000) + (swimmer.data('currentAverage'));
+                swimmer.find('.countdown').text(formatTime(timeElapsed));
+                if (!swimmer.data('isActive')) {
+                    swimmer.css('background-color', '#ffffff');
+                } else if (timeElapsed < -120) {
+                    swimmer.css('background-color', '#db7b2b');
+                } else if (timeElapsed < -30) {
+                    swimmer.css('background-color', '#e7b416');
+                } else if (timeElapsed < -10) {
+                    swimmer.css('background-color', 'rgb(153, 193, 64)');
+                } else if (timeElapsed < 5) {
+                    let delta = 1 - (15 + (timeElapsed - 5)) / 15.0;
+                    swimmer.css('background-color', 'rgba(153, 193, 64, ' + delta + ')');
+                } else {
+                    swimmer.css('background-color', '#ffffff');
+                }
+            }
+
+            setInterval(function () {
+                $('#activeSwimmers .activeSwimmer').each(function () {
+                    updateSwimmer($(this));
+                });
+            }, 1000);
+
+            $('#activeSwimmers').on("click", ".f-edit", function (e) {
+                const elm = $(this).parents('.activeSwimmer');
+                showEditDialog(elm, {
+                    Speichern: function () {
+                        saveEditDialog(elm);
+                        $(this).dialog("close");
+                    },
+                    "Pause": async function () {
+                        saveEditDialog(elm);
+                        await hub.invoke('setInactive', lane, elm.data('participantId'));
+                        $(this).dialog("close");
+                    },
+                    "Verlässt Bahn": async function () {
+                        await hub.invoke('leaveLane', lane, elm.data('participantId'));
+                        $(this).dialog("close");
+                    },
+                    Abbrechen: function () {
+                        $(this).dialog("close");
+                    }
+                });
+
+                return false;
+            });
+
+            async function saveEditDialog(elm) {
+                elm.data('clothingType', $('#dialog input[name="ClothingType"]:checked').val());
+                elm.data('clothingColor', $('#dialog input[name="ClothingColor"]:checked').val());
+                elm.data('googlesColor', $('#dialog input[name="GooglesColor"]:checked').val());
+                elm.data('hairColor', $('#dialog input[name="HairColor"]:checked').val());
+                elm.data('hatColor', $('#dialog input[name="HatColor"]:checked').val());
+                elm.data('tattoo', $('#dialog input[name="Tattoo"]').prop('checked'));
+                elm.data('headphones', $('#dialog input[name="Headphones"]').prop('checked'));
+                elm.data('remarks', $('#dialog input[name="Remarks"]').val());
+
+                await hub.invoke('saveProperties', lane, elm.data('participantId'), elm.data('clothingType'), elm.data('clothingColor'), elm.data('googlesColor'), elm.data('hairColor'), elm.data('hatColor'), elm.data('tattoo'), elm.data('headphones'), elm.data('remarks'));
+            }
+
+            function showEditDialog(elm, buttons) {
+                const data = elm.data();
+
+                $('#dialog input[name="ClothingType"][value="' + elm.data('clothingType') + '"]').prop("checked", true);
+                $('#dialog input[name="ClothingColor"][value="' + elm.data('clothingColor') + '"]').prop("checked", true);
+                $('#dialog input[name="GooglesColor"][value="' + elm.data('googlesColor') + '"]').prop("checked", true);
+                $('#dialog input[name="HairColor"][value="' + elm.data('hairColor') + '"]').prop("checked", true);
+                $('#dialog input[name="HatColor"][value="' + elm.data('hatColor') + '"]').prop("checked", true);
+                $('#dialog input[name="Tattoo"]').prop("checked", elm.data('tattoo'));
+                $('#dialog input[name="Remarks"]').val(elm.data('remarks'));
+
+                $("#dialog").dialog({
+                    resizable: false,
+                    height: 600,
+                    width: 800,
+                    modal: true,
+                    buttons: buttons
+                });
+            }
+
+            $('#activeSwimmers').on("click", ".activeSwimmer", async function (e) {
+                const elm = $(this);
+                const data = elm.data();
+
+                if ((new Date() - elm.data('lastCount')) < 5 * 1000)
+                    return;
+
+                await hub.invoke('countLane', lane, elm.data('participantId'));
+
+                elm.animate({
+                    height: 0,
+                }, 150, "", function () {
+                    const parent = elm.parent();
+
+                    elm.remove();
+                    elm.css('height', '')
+                    parent.append(elm);
+                    elm.data(data);
+                });
+            });
+
+            $('#inactiveSwimmers').on("click", ".activeSwimmer", function (e) {
+                const elm = $(this);
+                showEditDialog(elm, {
+                    Speichern: function () {
+                        saveEditDialog(elm);
+                        $(this).dialog("close");
+                    },
+                    "Schwimmen": async function () {
+                        saveEditDialog(elm);
+                        await hub.invoke('setActive', lane, elm.data('participantId'));
+                        $(this).dialog("close");
+                    },
+                    "Verlässt Bahn": async function () {
+                        await hub.invoke('leaveLane', lane, elm.data('participantId'));
+                        $(this).dialog("close");
+                    },
+                    Abbrechen: function () {
+                        $(this).dialog("close");
+                    }
+                });
+
+                return false;
+            });
+
+            $('#nav-message').click(function () {
+                $("#dialog2").dialog({
+                    resizable: false,
+                    height: 'auto',
+                    width: 'auto',
+                    modal: true,
+                    buttons: {
+                        Abbrechen: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+        });
+
+        function formatTime(seconds) {
+            const prefix = seconds < 0 ? '-' : '';
+            seconds = Math.abs(seconds);
+
+            const days = Math.floor(seconds / (24 * 60 * 60));
+            let leftSec = seconds - days * 24 * 60 * 60;
+
+            const hrs = Math.floor(leftSec / (60 * 60));
+            leftSec = leftSec - hrs * 60 * 60;
+
+            const min = Math.floor(leftSec / (60));
+            leftSec = leftSec - min * 60;
+
+            return prefix + min + ':' + (leftSec >= 10 ? leftSec : '0' + leftSec.toString());
+        }
+    </script>
+</body>
+</html>
