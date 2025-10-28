@@ -89,7 +89,16 @@
                            buttons button-variant="outline-primary">
             <BFormRadio id="GooglesColorNone" value="">
               <label for="GooglesColorNone">
-                <img src="../../assets/content/GooglesNone.png" width="50" height="50"/>
+                <div style="position: relative; width: 50px; height: 50px;">
+                  <img src="../../assets/content/swimmer-characteristics/goggles-bold.svg" width="50" height="50"/>
+                  <v-icon
+                      style="position: absolute; top: 35%; left: 75%; transform: translate(-50%, -50%);"
+                      size="40"
+                      color="red"
+                  >
+                    mdi-close-thick
+                  </v-icon>
+                </div>
               </label>
             </BFormRadio>
             <BFormRadio
@@ -98,8 +107,11 @@
                 :id="googlesColor.id"
                 :value="googlesColor.value">
               <label :for="googlesColor.id">
-                <img src="../../assets/content/GooglesColor.png" width="50" height="50"
-                     :style="{ backgroundColor: googlesColor.backgroundColor, border: googlesColor.border}"/>
+                <GogglesIcon
+                    width="50"
+                    height="50"
+                    :style="{ fill: googlesColor.backgroundColor, border: googlesColor.border }"
+                />
               </label>
             </BFormRadio>
           </BFormRadioGroup>
@@ -278,7 +290,7 @@
         <label>Kopfhörer</label><br/>
         <BFormCheckbox id="Headphones" value="Headphones" button button-variant="outline-primary">
           <label for="Headphones">
-            <img src="../../assets/content/Headphones.png" width="50" height="50"/>
+            <EarPodIcon width="40" height="40" style="margin: 5px;"/>
           </label>
         </BFormCheckbox>
       </BCol>
@@ -291,8 +303,15 @@
 </template>
 
 <script>
+import GogglesIcon from '../../assets/content/swimmer-characteristics/goggles-bold.svg';
+import EarPodIcon from '../../assets/content/swimmer-characteristics/earpods-solid.svg';
+
 export default {
   name: "EditSwimmerModal",
+  components: {
+    GogglesIcon,
+    EarPodIcon,
+  },
   data() {
     return {
       showEditSwimmerModal: false,

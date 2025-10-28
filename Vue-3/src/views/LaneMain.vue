@@ -25,92 +25,42 @@
 
     <!-- Begin page content -->
     <main role="main" class="container-fluid" style="margin-top: 60px">
-      <BRow>
-        <BCol class="col-sm-8">
-          <div id="activeSwimmers" class="container-fluid">
-            <BRow>
-              <BCol>
-                <BButton v-b-toggle.collapse-1 variant="primary">Bahn 1</BButton>
-                <BCollapse id="collapse-1" class="mt-2">
-                  <b-card>
-                    <b-card-text>
-                      <div class="row active swimmer" style="border: 1px solid black;">
-                        <div class="col" style="overflow: hidden; white-space: nowrap">
-                          <div class="f-edit"
-                               style="float: right; width: 75px; height: 50px; margin: 5px; padding-left: 20px; background-image: url(../components/content/pen_blue.png); background-repeat: no-repeat; background-position: center; background-color: red;"></div>
-                          <div class="f-attributes"></div>
-                          <h2 class="f-name"></h2>
-                          <div class="f-info">Nächster Anschlag: <span class="countdown">--:--</span>, Distanz: <span
-                              class="distance">-- Bahnen / -- m</span></div>
-                        </div>
-                      </div>
-                    </b-card-text>
-                  </b-card>
-                </BCollapse>
-              </BCol>
-            </BRow>
-
-            <div class="row activeSwimmer" style="border: 1px solid black;">
-              <div class="col" style="overflow: hidden; white-space: nowrap">
-                <div class="f-edit"
-                     style="float: right; width: 75px; height: 50px; margin: 5px; padding-left: 20px; background-image: url(../components/content/pen_blue.png); background-repeat: no-repeat; background-position: center; background-color: red;"></div>
-                <div class="f-attributes"></div>
-                <h2 class="f-name"></h2>
-                <div class="f-info">Nächster Anschlag: <span class="countdown">--:--</span>, Distanz: <span
-                    class="distance">-- Bahnen / -- m</span></div>
-              </div>
-            </div>
-            <div class="row activeSwimmer" style="border: 1px solid black;">
-              <div class="col" style="overflow: hidden; white-space: nowrap">
-                <div class="f-edit"
-                     style="float: right; width: 75px; height: 50px; margin: 5px; padding-left: 20px; background-image: url(../components/content/pen_blue.png); background-repeat: no-repeat; background-position: center; background-color: red;"></div>
-                <div class="f-attributes">
-                  <div
-                      style="float: right; width: 50px; height: 50px; margin: 2px; background-image: url(../components/content/Tattoo.png);"></div>
-                </div>
-                <h2 class="f-name"></h2>
-                <div class="f-info">Nächster Anschlag: <span class="countdown">--:--</span>, Distanz: <span
-                    class="distance">-- Bahnen / -- m</span></div>
-              </div>
-            </div>
-          </div>
-        </BCol>
-        <BCol class="col-sm-4">
+      <v-row>
+        <v-col class="col-12 col-lg-8">
+          <active-swimmer
+              v-for="swimmer in activeSwimmers"
+              :key="'activeSwimmer' + swimmer.id"
+              :swimmer="swimmer"
+              @editActiveSwimmer="editActiveSwimmer"
+          ></active-swimmer>
+        </v-col>
+        <v-col class="col-12 col-lg-4">
           <div id="inactiveSwimmers">
             <inactive-swimmer
                 v-for="swimmer in swimmers"
                 :swimmer="swimmer"
                 :hide-info-default="true"
+                @inactiveSwimmerClicked="inactiveSwimmerClicked"
             ></inactive-swimmer>
-            <div class="row activeSwimmer" style="border: 1px solid black;">
-              <div class="col" style="overflow: hidden; white-space: nowrap">
-                <div class="f-edit"
-                     style="float: right; width: 75px; height: 50px; margin: 5px; padding-left: 20px; background-image: url(../components/content/pen_blue.png); background-repeat: no-repeat; background-position: center; background-color: red;"></div>
-                <div class="f-attributes"></div>
-                <h2 class="f-name"></h2>
-                <div class="f-info">Nächster Anschlag: <span class="countdown">--:--</span>, Distanz: <span
-                    class="distance">-- Bahnen / -- m</span></div>
-              </div>
-            </div>
-            '
-            <div class="row activeSwimmer" style="border: 1px solid black;">
-              <div class="col" style="overflow: hidden; white-space: nowrap">
-                <div class="f-edit"
-                     style="float: right; width: 75px; height: 50px; margin: 5px; padding-left: 20px; background-image: url(../components/content/pen_blue.png); background-repeat: no-repeat; background-position: center; background-color: red;"></div>
-                <div class="f-attributes"></div>
-                <h2 class="f-name"></h2>
-                <div class="f-info">Nächster Anschlag: <span class="countdown">--:--</span>, Distanz: <span
-                    class="distance">-- Bahnen / -- m</span></div>
-              </div>
-            </div>
-            '
           </div>
-        </BCol>
-      </BRow>
+        </v-col>
+      </v-row>
     </main>
 
 
     <edit-swimmer-modal></edit-swimmer-modal>
+    <edit-inactive-swimmer-modal
+        ref="displayInactiveSwimmerModal"
+        @startSwimming="addSwimmerToActiveList"
+        @leaveLane="removeInactiveSwimmerFromLane"
+        @close="">
+    </edit-inactive-swimmer-modal>
+    <edit-active-swimmer-modal
+        ref="editActiveSwimmerModal"
+        @breakSwimming="removeSwimmerFromActiveList"
+        @leaveLane="removeActiveSwimmerFromLane"
+        @close="">
+    </edit-active-swimmer-modal>
   </section>
 </template>
 
@@ -119,10 +69,21 @@ import {useLaneStore} from '../store';
 import EditSwimmerModal from "../components/lane-management/EditSwimmerModal.vue";
 import CounterMessageModal from "../components/lane-management/CounterMessageModal.vue";
 import InactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
+import inactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
+import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
+import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
+import EditActiveSwimmerModal from "../components/swimmer-management/EditActiveSwimmerModal.vue";
 
 export default {
   name: "LaneSelect",
-  components: {InactiveSwimmer, CounterMessageModal, EditSwimmerModal},
+  components: {
+    EditInactiveSwimmerModal,
+    EditActiveSwimmerModal,
+    ActiveSwimmer,
+    InactiveSwimmer,
+    CounterMessageModal,
+    EditSwimmerModal
+  },
   data() {
     return {
       laneId: null,
@@ -138,25 +99,137 @@ export default {
       swimmers: [
         {
           id: 1,
-          swimmerName: {first: "Max", last: "Mustermann"},
+          swimmerName: {
+            first: "Max",
+            last: "Mustermann"
+          },
           age: 25,
           swimDistance: 1050,
           team: "Team A",
-          family: ""
+          family: "",
+          gender: "male",
+          characteristics: {
+            swimwearType: "trunks",
+            swimwearColor: "green",
+            googles: "blue",
+            swimCap: "red",
+            hair: "brown",
+            tattoo: false,
+            headphones: false,
+            notes: ""
+          }
         },
+        {
+          id: 3,
+          swimmerName: {
+            first: "Hans",
+            last: "Müller"
+          },
+          age: 28,
+          swimDistance: 20350,
+          team: "Team B",
+          family: "",
+          gender: "male",
+          characteristics: {
+            swimwearType: "trunks",
+            swimwearColor: "red",
+            googles: "black",
+            swimCap: "none",
+            hair: "black",
+            tattoo: true,
+            headphones: true,
+            notes: "Has a tattoo on his left arm."
+          }
+        },
+        {
+          id: 4,
+          swimmerName: {
+            first: "Anna",
+            last: "Schmidt"
+          },
+          age: 22,
+          swimDistance: 5000,
+          team: "Team A",
+          family: "",
+          gender: "female",
+          characteristics: {
+            swimwearType: "swimsuit",
+            swimwearColor: "blue",
+            googles: "none",
+            swimCap: "yellow",
+            hair: "green",
+            tattoo: false,
+            headphones: false,
+            notes: "Prefers to swim in the morning."
+          }
+        },
+        {
+          id: 5,
+          swimmerName: {
+            first: "Peter",
+            last: "Schneider"
+          },
+          age: 35,
+          swimDistance: 10000,
+          team: "",
+          family: "",
+          gender: "male",
+          characteristics: {
+            swimwearType: "short-pants",
+            swimwearColor: "blue",
+            googles: "green",
+            swimCap: "white",
+            hair: "grey",
+            tattoo: false,
+            headphones: true,
+            notes: "Enjoys listening to music while swimming."
+          }
+        },
+        {
+          id: 6,
+          swimmerName: {
+            first: "Julia",
+            last: "Fischer"
+          },
+          age: 8,
+          swimDistance: 150,
+          team: "",
+          family: "Millers",
+          gender: "female",
+          characteristics: {
+            swimwearType: "bikini",
+            swimwearColor: "pink",
+            googles: "purple",
+            swimCap: "pink",
+            hair: "yellow",
+            tattoo: false,
+            headphones: false,
+            notes: "Loves swimming with her friends."
+          }
+        },
+      ],
+      activeSwimmers: [
         {
           id: 2,
           swimmerName: {first: "Erika", last: "Musterfrau"},
           age: 30,
           swimDistance: 1500,
           team: "",
-          family: "Millers"
+          family: "Millers and Friends",
+          gender: "female",
+          characteristics: {
+            swimwearType: "bikini",
+            swimwearColor: "red",
+            googles: "black",
+            swimCap: "black",
+            hair: "yellow",
+            tattoo: false,
+            headphones: true,
+            notes: "Prefers to swim in the evening."
+          }
         },
-        {id: 3, swimmerName: {first: "Hans", last: "Müller"}, age: 28, swimDistance: 20350, team: "Team B", family: ""},
-        {id: 4, swimmerName: {first: "Anna", last: "Schmidt"}, age: 22, swimDistance: 5000, team: "Team A", family: ""},
-        {id: 5, swimmerName: {first: "Peter", last: "Schneider"}, age: 35, swimDistance: 10000, team: "", family: ""},
-        {id: 6, swimmerName: {first: "Julia", last: "Fischer"}, age: 8, swimDistance: 150, team: "", family: "Millers"},
       ],
+      selectedInactiveSwimmer: null,
     };
   },
   setup() {
@@ -170,6 +243,29 @@ export default {
   },
   beforeUpdate() {
     this.laneId = Number.parseInt(this.$route.params.id);
+  },
+  methods: {
+    inactiveSwimmerClicked(swimmer) {
+      this.selectedInactiveSwimmer = swimmer;
+      this.$refs.displayInactiveSwimmerModal.openModal(swimmer);
+    },
+    addSwimmerToActiveList(swimmer) {
+      this.activeSwimmers.push(swimmer);
+      this.swimmers = this.swimmers.filter(s => s.id !== swimmer.id);
+    },
+    removeInactiveSwimmerFromLane(swimmer) {
+      this.swimmers = this.swimmers.filter(s => s.id !== swimmer.id);
+    },
+    removeActiveSwimmerFromLane(swimmer) {
+      this.activeSwimmers = this.activeSwimmers.filter(s => s.id !== swimmer.id);
+    },
+    editActiveSwimmer(swimmer) {
+      this.$refs.editActiveSwimmerModal.openModal(swimmer);
+    },
+    removeSwimmerFromActiveList(swimmer) {
+      this.swimmers.push(swimmer);
+      this.activeSwimmers = this.activeSwimmers.filter(s => s.id !== swimmer.id);
+    }
   }
 }
 </script>

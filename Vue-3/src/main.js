@@ -5,7 +5,7 @@ import App from './App.vue'
 import router from './router'
 import './assets/global.css';
 import {createBootstrap} from 'bootstrap-vue-next'
-import vuetify from './plugins/vuetify';
+import { vuetify } from './plugins/vuetify';
 import '@mdi/font/css/materialdesignicons.css'
 
 // Add the necessary CSS

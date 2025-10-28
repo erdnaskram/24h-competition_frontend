@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import svgLoader from "vite-svg-loader";
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify';
 
@@ -14,5 +15,6 @@ export default defineConfig({
       resolvers: [BootstrapVueNextResolver()],
     }),
     vuetify({ autoImport: true }),
+    svgLoader(),
   ],
 })

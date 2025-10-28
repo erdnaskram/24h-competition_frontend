@@ -1,0 +1,139 @@
+<template>
+  <v-dialog v-model="showModal"
+    max-width="600"
+    persistent >
+    <v-card>
+      <v-card-text>
+      <v-row>
+        <v-col>
+          <a class="swimmer-name">
+            {{ swimmer.id }} -
+            {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }}
+            ({{ swimmer.age }})
+          </a>
+        </v-col>
+      </v-row>
+      <v-row class="text-left">
+        <v-col class="swimmer-info">
+          <v-chip color="primary"
+                  size="x-large">
+            {{ formatDistance(swimmer.swimDistance) }}
+          </v-chip>
+        </v-col>
+        <v-col  class="swimmer-info">
+          <v-chip color="primary" size="x-large">
+            {{ formatLaneCount(swimmer.swimDistance) }}
+          </v-chip>
+        </v-col>
+        <v-col
+            v-if="swimmer.team !== ''"
+            class="swimmer-info">
+          <v-chip color="primary" size="x-large">
+            {{ swimmer.team }}
+            <v-icon class="ml-2" icon="mdi-account-group"></v-icon>
+          </v-chip>
+        </v-col>
+        <v-col
+            v-else-if="swimmer.family !== ''"
+            class="swimmer-info">
+          <v-chip color="primary" size="x-large">
+            {{ swimmer.family }}
+            <v-icon class="ml-2" >mdi-home</v-icon>
+          </v-chip>
+        </v-col>
+      </v-row>
+      </v-card-text>
+
+      <v-card-actions>
+      <v-btn
+          text="Schwimmen starten"
+          color="green"
+          @click="startSwimming"
+      ></v-btn>
+      <v-btn
+          text="Bahn verlassen"
+          color="deep-orange"
+          @click="leaveLane"
+      ></v-btn>
+        <v-spacer></v-spacer>
+      <v-btn
+          text="Schließen"
+          color="grey-darken-3"
+          @click="closeModal"
+      ></v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script>
+export default {
+  name: "EditInactiveSwimmerModal",
+  props: {
+  },
+  data() {
+    return {
+      showModal: false,
+      swimmer: null,
+    };
+  },
+  mounted() {
+    console.log('Component mounted.');
+  },
+  beforeDestroy() {
+  },
+  methods: {
+    openModal(swimmer) {
+      this.swimmer = swimmer;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.$emit('close');
+    },
+    formatDistance(distance) {
+      return distance > 1000 ? `${(distance / 1000).toLocaleString('de-DE')} km` : `${distance.toLocaleString('de-DE')} m`;
+    },
+    formatLaneCount(distance) {
+      return `${distance / 25} Bahnen`
+    },
+    startSwimming() {
+      this.$emit('startSwimming', this.swimmer);
+      this.closeModal();
+    },
+    leaveLane() {
+      this.$emit('leaveLane', this.swimmer);
+      this.closeModal();
+    }
+  },
+  computed: {},
+}
+</script>
+
+<style scoped>
+
+.inactive-swimmer {
+  background-color: #f0f0f0;
+  border: 3px solid gray;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.swimmer-name {
+  font-size: 1.7em;
+  font-weight: bold;
+  color: #013157;
+  text-decoration: none;
+}
+
+.swimmer-info {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.font-italic {
+  font-style: italic;
+}
+</style>

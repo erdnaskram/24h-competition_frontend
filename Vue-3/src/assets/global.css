@@ -5,8 +5,4 @@ body, html {
     background-position: center; /* Bild zentrieren */
     background-repeat: no-repeat; /* Bild nicht wiederholen */
     background-attachment: fixed; /* Hintergrundbild fixieren */
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    min-height: 100%;
 }
