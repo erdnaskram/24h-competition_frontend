@@ -43,7 +43,7 @@
       </v-row>
       </v-card-text>
 
-      <v-card-actions>
+      <v-card-actions class="d-flex flex-wrap">
       <v-btn
           text="Pause"
           color="blue"
@@ -110,16 +110,6 @@ export default {
 </script>
 
 <style scoped>
-
-.inactive-swimmer {
-  background-color: #f0f0f0;
-  border: 3px solid gray;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
 .swimmer-name {
   font-size: 1.7em;
   font-weight: bold;
@@ -130,9 +120,5 @@ export default {
 .swimmer-info {
   padding-left: 4px;
   padding-right: 4px;
-}
-
-.font-italic {
-  font-style: italic;
 }
 </style>

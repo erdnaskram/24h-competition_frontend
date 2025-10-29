@@ -1,6 +1,9 @@
 <template>
   <v-card
-      class="active-swimmer">
+      class="active-swimmer"
+      :class="{confirmClicked: isClickConfirmationActive}"
+      @click="incrementLaneCount"
+  >
     <v-row>
       <v-col class="col-12 col-md-6">
         <v-row class="p-3 pb-2">
@@ -10,7 +13,7 @@
             ({{ swimmer.age }}J)
           </a>
         </v-row>
-        <v-row class="text-left p-3 pt-0 d-none d-md-flex" v-if="!hideInfoDefault || isInScope">
+        <v-row class="text-left p-3 pt-0 d-none d-md-flex">
           <v-col class="swimmer-info">
             <v-chip :color="swimmer.swimDistance > 1000 ? 'primary' : 'info'"
                     :class="{ 'font-italic': swimmer.swimDistance <= 1000 }"
@@ -127,11 +130,18 @@
         <v-btn
             icon="mdi-account-edit"
             color="info"
-            size="x-large"
-            @click="editActiveSwimmer"
+            size="large"
+            @click.stop="editActiveSwimmer"
         ></v-btn>
       </v-col>
     </v-row>
+    <v-progress-linear
+        v-model="waitTimeProgress"
+        :color="isCooldownActive ? 'primary' : 'green'"
+        height="8"
+        rounded
+        :striped="isCooldownActive"
+    ></v-progress-linear>
   </v-card>
 </template>
 <script>
@@ -158,7 +168,6 @@ export default {
     HeadphoneIcon,
     SwimSuitIcon,
   },
-  computed: {},
   props: {
     swimmer: {
       type: Object,
@@ -168,7 +177,15 @@ export default {
   data() {
     return {
       isInScope: false,
+      lastIncrementTime: null,
+      incrementCoolDown: 10_000, // 10 seconds
+      waitTimeProgress: 0,
+      isCooldownActive: false,
+      now: Date.now(),
+      isClickConfirmationActive: false,
     };
+  },
+  computed: {
   },
   methods: {
     formatDistance(distance) {
@@ -179,6 +196,34 @@ export default {
     },
     editActiveSwimmer() {
       this.$emit('editActiveSwimmer', this.swimmer);
+    },
+    incrementLaneCount() {
+      const currentTime = new Date().getTime();
+      if (this.lastIncrementTime && (currentTime - this.lastIncrementTime) < this.incrementCoolDown) {
+        return; // Cooldown period not yet passed
+      }
+      this.showClickConfirmation();
+      this.swimmer.swimDistance += 50;
+      this.lastIncrementTime = currentTime;
+      this.isCooldownActive = true;
+      this.waitTimeProgress = 0;
+      this.countDownCooldown()
+    },
+    countDownCooldown() {
+      setTimeout(() => {
+        this.waitTimeProgress += 10;
+        if (this.waitTimeProgress < 100) {
+          this.countDownCooldown();
+        } else {
+          this.isCooldownActive = false;
+        }
+      }, this.incrementCoolDown / 10);
+    },
+    showClickConfirmation() {
+      this.isClickConfirmationActive = true;
+      setTimeout(() => {
+        this.isClickConfirmationActive = false;
+      }, 500);
     }
   },
 }
@@ -222,7 +267,7 @@ export default {
 
 .swimmer-characteristics-notes {
   width: 255px;
-  height: 50px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -233,5 +278,9 @@ export default {
 .swimmer-characteristics-icon {
   width: 40px;
   height: 40px;
+}
+
+.confirmClicked {
+  border-color: #4caf50; /* Vuetify-Grün */
 }
 </style>
