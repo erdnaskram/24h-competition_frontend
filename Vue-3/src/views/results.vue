@@ -15,12 +15,10 @@
   </section>
 </template>
 <script>
-import FlipClock from "../components/UI/FlipClock.vue";
-
+//Constant which is multiplied with the count of participants for optimal scrolling.
 const SCROLL_FACTOR = 800;
 export default {
   name: 'Results',
-  components: {FlipClock},
   data() {
     return {
       count: 0,

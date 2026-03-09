@@ -1,20 +1,46 @@
-import { defineConfig } from 'vite'
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite';
 import svgLoader from "vite-svg-loader";
-import vue from '@vitejs/plugin-vue'
+import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
-
-import Components from 'unplugin-vue-components/vite'
-import {BootstrapVueNextResolver} from 'bootstrap-vue-next'
-
+import Components from 'unplugin-vue-components/vite';
+import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
 
 // https://vitejs.dev/config/
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { playwright } from '@vitest/browser-playwright';
+const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+
+// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [BootstrapVueNextResolver()],
-    }),
-    vuetify({ autoImport: true }),
-    svgLoader(),
-  ],
-})
+  plugins: [vue(), Components({
+    resolvers: [BootstrapVueNextResolver()]
+  }), vuetify({
+    autoImport: true
+  }), svgLoader()],
+  test: {
+    projects: [{
+      extends: true,
+      plugins: [
+      // The plugin will run tests for the stories defined in your Storybook config
+      // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+      storybookTest({
+        configDir: path.join(dirname, '.storybook')
+      })],
+      test: {
+        name: 'storybook',
+        browser: {
+          enabled: true,
+          headless: true,
+          provider: playwright({}),
+          instances: [{
+            browser: 'chromium'
+          }]
+        },
+        setupFiles: ['.storybook/vitest.setup.js']
+      }
+    }]
+  }
+});

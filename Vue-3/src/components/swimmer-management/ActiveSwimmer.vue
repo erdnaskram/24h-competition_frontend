@@ -185,8 +185,7 @@ export default {
       isClickConfirmationActive: false,
     };
   },
-  computed: {
-  },
+  computed: {},
   methods: {
     formatDistance(distance) {
       return distance > 1000 ? `${(distance / 1000).toLocaleString('de-DE')} km` : `${distance.toLocaleString('de-DE')} m`;

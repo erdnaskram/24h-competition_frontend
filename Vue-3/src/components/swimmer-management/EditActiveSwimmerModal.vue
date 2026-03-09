@@ -41,6 +41,15 @@
           </v-chip>
         </v-col>
       </v-row>
+        <v-row>
+          <v-col>
+            <v-btn
+                @click="$emit('editSwimmer', swimmer)">
+              Schwimmer Merkmale bearbeiten
+              <v-icon class="ml-2">mdi-account-edit</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
       </v-card-text>
 
       <v-card-actions class="d-flex flex-wrap">
@@ -75,11 +84,6 @@ export default {
       showModal: false,
       swimmer: null,
     };
-  },
-  mounted() {
-    console.log('Component mounted.');
-  },
-  beforeDestroy() {
   },
   methods: {
     openModal(swimmer) {

@@ -37,7 +37,7 @@
         <v-col class="col-12 col-lg-4">
           <div id="inactiveSwimmers">
             <inactive-swimmer
-                v-for="swimmer in swimmers"
+                v-for="swimmer in inactiveSwimmers"
                 :swimmer="swimmer"
                 :hide-info-default="true"
                 @inactiveSwimmerClicked="inactiveSwimmerClicked"
@@ -52,15 +52,23 @@
     <edit-inactive-swimmer-modal
         ref="displayInactiveSwimmerModal"
         @startSwimming="addSwimmerToActiveList"
-        @leaveLane="removeInactiveSwimmerFromLane"
+        @leaveLane="removeSwimmerFromLane"
+        @editSwimmer="editSwimmerCharacteristics"
         @close="">
     </edit-inactive-swimmer-modal>
     <edit-active-swimmer-modal
         ref="editActiveSwimmerModal"
         @breakSwimming="removeSwimmerFromActiveList"
-        @leaveLane="removeActiveSwimmerFromLane"
+        @leaveLane="removeSwimmerFromLane"
+        @editSwimmer="editSwimmerCharacteristics"
         @close="">
     </edit-active-swimmer-modal>
+    <edit-swimmer-characteristics-modal
+        ref="editSwimmerCharacteristicsModal"
+        @saveChanges="saveSwimmerCharacteristicsChanges"
+        @startSwimming="addSwimmerToActiveList"
+        @close="">
+    </edit-swimmer-characteristics-modal>
   </section>
 </template>
 
@@ -73,10 +81,12 @@ import inactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vu
 import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
 import EditActiveSwimmerModal from "../components/swimmer-management/EditActiveSwimmerModal.vue";
+import EditSwimmerCharacteristicsModal from "../components/swimmer-management/EditSwimmerCharacteristicsModal.vue";
 
 export default {
   name: "LaneSelect",
   components: {
+    EditSwimmerCharacteristicsModal,
     EditInactiveSwimmerModal,
     EditActiveSwimmerModal,
     ActiveSwimmer,
@@ -99,6 +109,7 @@ export default {
       swimmers: [
         {
           id: 1,
+          isActive: false,
           swimmerName: {
             first: "Max",
             last: "Mustermann"
@@ -120,7 +131,28 @@ export default {
           }
         },
         {
+          id: 2,
+          isActive: true,
+          swimmerName: {first: "Erika", last: "Musterfrau"},
+          age: 30,
+          swimDistance: 1500,
+          team: "",
+          family: "Millers and Friends",
+          gender: "female",
+          characteristics: {
+            swimwearType: "bikini",
+            swimwearColor: "red",
+            googles: "black",
+            swimCap: "black",
+            hair: "yellow",
+            tattoo: false,
+            headphones: true,
+            notes: "Prefers to swim in the evening."
+          }
+        },
+        {
           id: 3,
+          isActive: false,
           swimmerName: {
             first: "Hans",
             last: "Müller"
@@ -143,6 +175,7 @@ export default {
         },
         {
           id: 4,
+          isActive: false,
           swimmerName: {
             first: "Anna",
             last: "Schmidt"
@@ -165,6 +198,7 @@ export default {
         },
         {
           id: 5,
+          isActive: false,
           swimmerName: {
             first: "Peter",
             last: "Schneider"
@@ -187,6 +221,7 @@ export default {
         },
         {
           id: 6,
+          isActive: false,
           swimmerName: {
             first: "Julia",
             last: "Fischer"
@@ -208,27 +243,6 @@ export default {
           }
         },
       ],
-      activeSwimmers: [
-        {
-          id: 2,
-          swimmerName: {first: "Erika", last: "Musterfrau"},
-          age: 30,
-          swimDistance: 1500,
-          team: "",
-          family: "Millers and Friends",
-          gender: "female",
-          characteristics: {
-            swimwearType: "bikini",
-            swimwearColor: "red",
-            googles: "black",
-            swimCap: "black",
-            hair: "yellow",
-            tattoo: false,
-            headphones: true,
-            notes: "Prefers to swim in the evening."
-          }
-        },
-      ],
       selectedInactiveSwimmer: null,
     };
   },
@@ -244,28 +258,40 @@ export default {
   beforeUpdate() {
     this.laneId = Number.parseInt(this.$route.params.id);
   },
+  computed: {
+    activeSwimmers() {
+      return this.swimmers.filter(s => s.isActive)
+    },
+    inactiveSwimmers() {
+      return this.swimmers.filter(s => !s.isActive)
+    }
+  },
   methods: {
     inactiveSwimmerClicked(swimmer) {
       this.selectedInactiveSwimmer = swimmer;
       this.$refs.displayInactiveSwimmerModal.openModal(swimmer);
     },
     addSwimmerToActiveList(swimmer) {
-      this.activeSwimmers.push(swimmer);
-      this.swimmers = this.swimmers.filter(s => s.id !== swimmer.id);
+      swimmer.isActive = true;
     },
-    removeInactiveSwimmerFromLane(swimmer) {
+    removeSwimmerFromLane(swimmer) {
       this.swimmers = this.swimmers.filter(s => s.id !== swimmer.id);
-    },
-    removeActiveSwimmerFromLane(swimmer) {
-      this.activeSwimmers = this.activeSwimmers.filter(s => s.id !== swimmer.id);
     },
     editActiveSwimmer(swimmer) {
       this.$refs.editActiveSwimmerModal.openModal(swimmer);
     },
     removeSwimmerFromActiveList(swimmer) {
-      this.swimmers.push(swimmer);
-      this.activeSwimmers = this.activeSwimmers.filter(s => s.id !== swimmer.id);
-    }
+      swimmer.isActive = false;
+    },
+    editSwimmerCharacteristics(swimmer, startSwimming = false) {
+      this.$refs.editSwimmerCharacteristicsModal.openModal(swimmer, startSwimming);
+    },
+    saveSwimmerCharacteristicsChanges(updatedSwimmer) {
+      const index = this.swimmers.findIndex(s => s.id === updatedSwimmer.id);
+      if (index !== -1) {
+        this.swimmers.splice(index, 1, updatedSwimmer);
+      }
+    },
   }
 }
 </script>

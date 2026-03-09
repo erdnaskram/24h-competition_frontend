@@ -1,15 +1,15 @@
 <template>
-  <BButton variant="success" @click="showMessageModal = true">Message</BButton>
-  <BModal v-model="showMessageModal" title="Nachricht an den Bahnen-Einteiler" :hide-footer="true">
+  <v-btn color="green" @click="showMessageModal = true">Message</v-btn>
+  <v-dialog v-model="showMessageModal" title="Nachricht an den Bahnen-Einteiler" :hide-footer="true">
     <div id="dialog2" title="Nachricht senden">
       <p>
-        <BButton id="pause" style="width: 100%">Brauche Ablösung (Pipi-Pause)</BButton>
+        <v-btn id="pause" style="width: 100%">Brauche Ablösung (Pipi-Pause)</v-btn>
       </p>
       <p>
-        <BButton id="question" style="width: 100%">Habe eine Frage (bitte vorbeikommen)</BButton>
+        <v-btn id="question" style="width: 100%">Habe eine Frage (bitte vorbeikommen)</v-btn>
       </p>
     </div>
-  </BModal>
+  </v-dialog>
 </template>
 
 <script>
