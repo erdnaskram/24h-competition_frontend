@@ -24,7 +24,7 @@ export const vuetify = createVuetify({
                     charsBrown: colors.brown.darken1,
                     charsOrange: colors.orange.accent4,
                     charsGrey: colors.grey.lighten1,
-                    charsLightGrey: colors.grey.lighten4,
+                    charsLightGrey: colors.grey.lighten3,
                 },
             },
         }

@@ -9,7 +9,7 @@
               class="py-2"
           >
             <p>Badekleidung</p>
-            <v-btn-toggle v-model="toggle_exclusive">
+            <v-btn-toggle v-model="swimSuit" border divided>
               <v-btn
                   class="characteristics-btn">
                 <bikini-icon
@@ -36,7 +36,7 @@
               class="py-2"
           >
             <p>Farbe der Badekleidung</p>
-            <v-btn-toggle v-model="swimmSuitColour">
+            <v-btn-toggle v-model="swimsuitColour" border divided>
               <v-btn
                   class="characteristics-btn"
                   v-for="color in colorOptions"
@@ -57,7 +57,7 @@
               class="py-2"
           >
             <p>Schwimmbrille</p>
-            <v-btn-toggle v-model="googles">
+            <v-btn-toggle v-model="googles" border divided>
               <v-btn>
                 <goggles-icon
                     class="swimmer-characteristics-icon char-purp"
@@ -89,7 +89,7 @@
               class="py-2"
           >
             <p>Badekappe</p>
-            <v-btn-toggle v-model="cap" color="grey-lighten-3">
+            <v-btn-toggle v-model="cap" border divided>
               <v-btn>
                 <hat-icon
                     class="swimmer-characteristics-icon"/>
@@ -109,7 +109,7 @@
               >
                 <hat-icon
                     class="swimmer-characteristics-icon"
-                    :class="{'icon-border': color.id === 'white' }"
+                    :class="{'icon-border-hat': color.id === 'white' }"
                     :style="{ fill: `rgb(var(--v-theme-${color.cssVar}))` }"/>
               </v-btn>
             </v-btn-toggle>
@@ -120,7 +120,7 @@
               class="py-2"
           >
             <p>Haarfarbe</p>
-            <v-btn-toggle v-model="hair">
+            <v-btn-toggle v-model="hair" border divided>
               <v-btn>
                 <hair-icon
                     class="swimmer-characteristics-icon"/>
@@ -140,7 +140,7 @@
               >
                 <hair-icon
                     class="swimmer-characteristics-icon"
-                    :class="{'icon-border': color.id === 'white' }"
+                    :class="{'icon-border-hair': color.id === 'white' }"
                     :style="{ color: `rgb(var(--v-theme-${color.cssVar}))` }"/>
               </v-btn>
             </v-btn-toggle>
@@ -221,6 +221,8 @@ export default {
   props: {},
   data() {
     return {
+      swimSuit: null,
+      swimsuitColour: null,
       googles: null,
       cap: null,
       hair: null,
@@ -335,13 +337,6 @@ export default {
   beforeDestroy() {
   },
   methods: {
-    hasBlackBorder(colour){
-      if (colour.id === "white"){
-        return "icon-border";
-      } else {
-        return "";
-      }
-    },
     openModal(swimmer, startSwimmingAfter) {
       this.swimmer = swimmer;
       this.showModal = true;
@@ -365,24 +360,44 @@ export default {
 <style scoped>
 
 .swimmer-characteristics-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: var('--v-charsRed');
 }
 
 .characteristics-btn {
-  width: 46px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
 }
 
-.icon-border {
-  stroke: black;
-  stroke-width: 20px;
-  stroke-linejoin: round;
-}
 .icon-border-googles {
   stroke: black;
   stroke-width: 10px;
-  stroke-linejoin: round;
 }
+.icon-border-hat {
+  stroke: black;
+  stroke-width: 20px;
+}
+.icon-border-hair {
+  stroke: black;
+  stroke-width: 1px;
+
+}
+
+/* --- Neue Styles: Hervorhebung der ausgewählten Option --- */
+/* Vuetify verwendet je nach Version unterschiedliche Active-Klassen. Wir decken beide ab. */
+.v-btn--active,
+.v-btn--is-active,
+.characteristics-btn.v-btn--active,
+.characteristics-btn.v-btn--is-active {
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  box-shadow: 0 10px 20px rgba(0,0,200,0.18);
+}
+
+/* Leichter Hover-Effekt für alle options */
+.v-btn:hover,
+.characteristics-btn:hover {
+  transform: translateY(-2px);
+}
+
 </style>
