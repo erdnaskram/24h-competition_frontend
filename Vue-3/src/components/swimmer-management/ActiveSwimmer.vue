@@ -2,7 +2,7 @@
   <v-card
       class="active-swimmer"
       :class="{confirmClicked: isClickConfirmationActive}"
-      @click="incrementLaneCount"
+      @click="handleActiveSwimmerClicked"
   >
     <v-row>
       <v-col class="col-12 col-md-6">
@@ -90,7 +90,9 @@
                 :style="{ fill: swimmer.characteristics.googles}"
             ></goggles-icon>
           </div>
-          <div class="swimmer-characteristics">
+          <div
+               v-if="swimmer.characteristics.hair !== 'none'"
+               class="swimmer-characteristics">
             <hair-icon
                 class="swimmer-characteristics-icon"
                 :style="{ color: swimmer.characteristics.hair }"
@@ -196,14 +198,17 @@ export default {
     editActiveSwimmer() {
       this.$emit('editActiveSwimmer', this.swimmer);
     },
-    incrementLaneCount() {
-      const currentTime = new Date().getTime();
-      if (this.lastIncrementTime && (currentTime - this.lastIncrementTime) < this.incrementCoolDown) {
+    handleActiveSwimmerClicked() {
+      if (this.lastIncrementTime && (new Date().getTime() - this.lastIncrementTime) < this.incrementCoolDown) {
         return; // Cooldown period not yet passed
       }
+      this.$emit("activeSwimmerClicked", this.localSwimmer);
+      this.incrementLaneCount();
+    },
+    incrementLaneCount() {
       this.showClickConfirmation();
       this.swimmer.swimDistance += 50;
-      this.lastIncrementTime = currentTime;
+      this.lastIncrementTime = new Date().getTime();
       this.isCooldownActive = true;
       this.waitTimeProgress = 0;
       this.countDownCooldown()

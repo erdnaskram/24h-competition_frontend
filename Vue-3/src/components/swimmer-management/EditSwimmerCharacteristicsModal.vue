@@ -9,23 +9,31 @@
               class="py-2"
           >
             <p>Badekleidung</p>
-            <v-btn-toggle v-model="swimSuit" border divided>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.swimwearType"
+                color="grey"
+                border
+                divided>
               <v-btn
+                  value="bikini"
                   class="characteristics-btn">
                 <bikini-icon
                     class="swimmer-characteristics-icon"/>
               </v-btn>
               <v-btn
+                  value="swimsuit"
                   class="characteristics-btn">
                 <swim-suit-icon
                     class="swimmer-characteristics-icon"/>
               </v-btn>
               <v-btn
+                  value="short-pants"
                   class="characteristics-btn">
                 <short-pants-icon
                     class="swimmer-characteristics-icon"/>
               </v-btn>
               <v-btn
+                  value="trunks"
                   class="characteristics-btn">
                 <pants-icon
                     class="swimmer-characteristics-icon"/>
@@ -36,14 +44,19 @@
               class="py-2"
           >
             <p>Farbe der Badekleidung</p>
-            <v-btn-toggle v-model="swimsuitColour" border divided>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.swimwearColor"
+                class="btn-toggle-wrap"
+                border
+                divided
+                color="grey">
               <v-btn
                   class="characteristics-btn"
-                  v-for="color in colorOptions"
-                  :key="color"
-                  :value="color"
+                  v-for="color in colorMap"
+                  :key="color.id"
+                  :value="color.id"
               >
-                <v-card :class="'bg-' + color"
+                <v-card :class="'bg-' + color.class"
                         border="accent thin"
                         style="width: 40px; height: 40px; border-radius: 10%;">
 
@@ -57,11 +70,16 @@
               class="py-2"
           >
             <p>Schwimmbrille</p>
-            <v-btn-toggle v-model="googles" border divided>
-              <v-btn>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.googles"
+                class="btn-toggle-wrap"
+                border
+                divided
+                color="grey">
+              <v-btn value="none">
                 <goggles-icon
                     class="swimmer-characteristics-icon char-purp"
-                    :style="{fill: `rgb(var(--v-theme-purple-accent-4)`}"/>
+                    :style="{ fill: 'rgb(var(--v-theme-purple-accent-4))' }"/>
                 <v-icon
                     style="position: absolute; top: 35%; left: 65%; transform: translate(-50%, -50%);"
                     size="40"
@@ -79,7 +97,7 @@
                 <goggles-icon
                     class="swimmer-characteristics-icon"
                     :class="{'icon-border-googles': color.id === 'white' }"
-                    :style="{ fill: `rgb(var(--v-theme-${color.cssVar}))` }"/>
+                    :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/>
               </v-btn>
             </v-btn-toggle>
           </v-col>
@@ -89,8 +107,12 @@
               class="py-2"
           >
             <p>Badekappe</p>
-            <v-btn-toggle v-model="cap" border divided>
-              <v-btn>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.swimCap"
+                border
+                divided
+                color="grey">
+              <v-btn value="none">
                 <hat-icon
                     class="swimmer-characteristics-icon"/>
                 <v-icon
@@ -110,7 +132,7 @@
                 <hat-icon
                     class="swimmer-characteristics-icon"
                     :class="{'icon-border-hat': color.id === 'white' }"
-                    :style="{ fill: `rgb(var(--v-theme-${color.cssVar}))` }"/>
+                    :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/>
               </v-btn>
             </v-btn-toggle>
           </v-col>
@@ -120,8 +142,12 @@
               class="py-2"
           >
             <p>Haarfarbe</p>
-            <v-btn-toggle v-model="hair" border divided>
-              <v-btn>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.hair"
+                border
+                divided
+                color="grey">
+              <v-btn value="none">
                 <hair-icon
                     class="swimmer-characteristics-icon"/>
                 <v-icon
@@ -141,39 +167,45 @@
                 <hair-icon
                     class="swimmer-characteristics-icon"
                     :class="{'icon-border-hair': color.id === 'white' }"
-                    :style="{ color: `rgb(var(--v-theme-${color.cssVar}))` }"/>
+                    :style="{ color: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/>
               </v-btn>
             </v-btn-toggle>
           </v-col>
         </v-row>
         <v-row>
           <v-col sm="4" md="2">
-            <p>Tatoo</p>
-            <v-btn-toggle v-model="tatoo" border
-                          divided>
-              <v-btn>
+            <p>Tattoo</p>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.tattoo"
+                border
+                divided
+                color="grey">
+              <v-btn :value="true">
                 Ja
               </v-btn>
-              <v-btn>
+              <v-btn :value="false">
                 Nein
               </v-btn>
             </v-btn-toggle>
           </v-col>
           <v-col sm="4" md="2">
             <p>Kopfhörer</p>
-            <v-btn-toggle v-model="tatoo" border
-                          divided>
-              <v-btn>
+            <v-btn-toggle
+                v-model="localSwimmer.characteristics.headphones"
+                border
+                divided
+                color="grey">
+              <v-btn :value="true">
                 Ja
               </v-btn>
-              <v-btn>
+              <v-btn :value="false">
                 Nein
               </v-btn>
             </v-btn-toggle>
           </v-col>
           <v-col sm="12" md="8">
             <p>Anmerkungen</p>
-            <v-text-field label="Kommentare"></v-text-field>
+            <v-text-field v-model="localSwimmer.characteristics.notes" label="Kommentare"></v-text-field>
           </v-col>
         </v-row>
 
@@ -227,10 +259,11 @@ export default {
       cap: null,
       hair: null,
       tatoo: null,
+      headphones: null,
 
 
       showModal: false,
-      swimmer: null,
+      localSwimmer: null,
       startSwimmingAfter: false,
       colorOptions: [
         'red-accent-4',
@@ -338,7 +371,7 @@ export default {
   },
   methods: {
     openModal(swimmer, startSwimmingAfter) {
-      this.swimmer = swimmer;
+      this.localSwimmer = JSON.parse(JSON.stringify(swimmer));
       this.showModal = true;
       this.startSwimmingAfter = startSwimmingAfter;
     },
@@ -347,9 +380,9 @@ export default {
       this.$emit('close');
     },
     saveChanges() {
-      this.$emit('saveChanges', this.swimmer);
+      this.$emit('saveChanges', this.localSwimmer);
       if (this.startSwimmingAfter) {
-        this.$emit('startSwimming', this.swimmer);
+        this.$emit('startSwimming', this.localSwimmer);
       }
       this.closeModal();
     },
@@ -374,10 +407,12 @@ export default {
   stroke: black;
   stroke-width: 10px;
 }
+
 .icon-border-hat {
   stroke: black;
   stroke-width: 20px;
 }
+
 .icon-border-hair {
   stroke: black;
   stroke-width: 1px;
@@ -391,7 +426,7 @@ export default {
 .characteristics-btn.v-btn--active,
 .characteristics-btn.v-btn--is-active {
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
-  box-shadow: 0 10px 20px rgba(0,0,200,0.18);
+  box-shadow: 0 10px 20px rgba(0, 0, 200, 0.18);
 }
 
 /* Leichter Hover-Effekt für alle options */
@@ -400,4 +435,16 @@ export default {
   transform: translateY(-2px);
 }
 
+
+btn-toggle-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  width: 100%;
+}
+
+/* falls du willst, dass die Buttons die Spalten ausfüllen */
+.btn-toggle-grid .v-btn {
+  width: 100%;
+}
 </style>

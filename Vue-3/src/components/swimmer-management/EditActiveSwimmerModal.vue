@@ -44,7 +44,7 @@
         <v-row>
           <v-col>
             <v-btn
-                @click="$emit('editSwimmer', swimmer)">
+                @click="editSwimmer">
               Schwimmer Merkmale bearbeiten
               <v-icon class="ml-2">mdi-account-edit</v-icon>
             </v-btn>
@@ -107,7 +107,11 @@ export default {
     leaveLane() {
       this.$emit('leaveLane', this.swimmer);
       this.closeModal();
-    }
+    },
+    editSwimmer() {
+      this.$emit('editSwimmer', this.swimmer);
+      this.closeModal();
+    },
   },
   computed: {},
 }

@@ -32,6 +32,7 @@
               :key="'activeSwimmer' + swimmer.id"
               :swimmer="swimmer"
               @editActiveSwimmer="editActiveSwimmer"
+              @activeSwimmerClicked="rearrangeSwimmer"
           ></active-swimmer>
         </v-col>
         <v-col class="col-12 col-lg-4">
@@ -47,8 +48,6 @@
       </v-row>
     </main>
 
-
-    <edit-swimmer-modal></edit-swimmer-modal>
     <edit-inactive-swimmer-modal
         ref="displayInactiveSwimmerModal"
         @startSwimming="addSwimmerToActiveList"
@@ -74,10 +73,8 @@
 
 <script>
 import {useLaneStore} from '../store';
-import EditSwimmerModal from "../components/lane-management/EditSwimmerModal.vue";
 import CounterMessageModal from "../components/lane-management/CounterMessageModal.vue";
 import InactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
-import inactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
 import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
 import EditActiveSwimmerModal from "../components/swimmer-management/EditActiveSwimmerModal.vue";
@@ -91,8 +88,7 @@ export default {
     EditActiveSwimmerModal,
     ActiveSwimmer,
     InactiveSwimmer,
-    CounterMessageModal,
-    EditSwimmerModal
+    CounterMessageModal
   },
   data() {
     return {
@@ -290,6 +286,13 @@ export default {
       const index = this.swimmers.findIndex(s => s.id === updatedSwimmer.id);
       if (index !== -1) {
         this.swimmers.splice(index, 1, updatedSwimmer);
+      }
+    },
+    rearrangeSwimmer(swimmer) {
+      const index = this.swimmers.findIndex(s => s.id === swimmer.id);
+      if (index !== -1) {
+        this.swimmers.splice(index, 1);
+        this.swimmers.push(swimmer);
       }
     },
   }
