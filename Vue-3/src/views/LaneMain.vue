@@ -14,11 +14,6 @@
       </BNavItem>
 
     </BNavbarNav>
-    <BNavbarNav>
-      <BNavForm>
-        <counter-message-modal></counter-message-modal>
-      </BNavForm>
-    </BNavbarNav>
   </b-navbar>
 
   <section class="mt-5">
@@ -73,7 +68,6 @@
 
 <script>
 import {useLaneStore} from '../store';
-import CounterMessageModal from "../components/lane-management/CounterMessageModal.vue";
 import InactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
 import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
@@ -88,7 +82,6 @@ export default {
     EditActiveSwimmerModal,
     ActiveSwimmer,
     InactiveSwimmer,
-    CounterMessageModal
   },
   data() {
     return {
