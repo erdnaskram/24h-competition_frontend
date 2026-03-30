@@ -59,6 +59,11 @@
           @click="breakSwimming"
       ></v-btn>
       <v-btn
+          text="Ausblenden"
+          color="grey"
+          @click="minimizeSwimmer"
+      ></v-btn>
+      <v-btn
           text="Bahn verlassen"
           color="deep-orange"
           @click="leaveLane"
@@ -110,6 +115,10 @@ export default {
     },
     editSwimmer() {
       this.$emit('editSwimmer', this.swimmer);
+      this.closeModal();
+    },
+    minimizeSwimmer() {
+      this.$emit('minimizeSwimmer', this.swimmer);
       this.closeModal();
     },
   },

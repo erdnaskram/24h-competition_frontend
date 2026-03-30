@@ -1,14 +1,14 @@
 <template>
-  <BRow class="pool-container">
-    <BCol v-if="counterPosition === 'left'" class="counter counter-left">Zähler</BCol>
-    <BCol lg="10" class="pool">
+  <BRow class="pool-container flex-nowrap" no-gutters>
+    <BCol cols="1" v-if="counterPosition === 'left'" class="counter counter-left">Zähler</BCol>
+    <BCol cols="10" class="pool">
       <div v-for="lane in lanes" :key="lane"  class="lane-intersection">
-      <div class="lane">
-        <router-link :to="'/lane/' + lane">Bahn {{ lane }}</router-link>
-      </div>
+        <div class="lane">
+          <router-link :to="'/lane/' + lane">Bahn {{ lane }}</router-link>
+        </div>
       </div>
     </BCol>
-    <BCol v-if="counterPosition === 'right'" class="counter counter-right">Zähler</BCol>
+    <BCol cols="1" v-if="counterPosition === 'right'" class="counter counter-right">Zähler</BCol>
   </BRow>
 </template>
 
@@ -41,7 +41,7 @@ export default {
 <style scoped>
 .pool-container {
   display: flex;
-  align-items: stretch; /* Ensure children stretch to the same height */
+  align-items: stretch;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
   padding: 0.2rem;
@@ -55,9 +55,9 @@ export default {
   align-items: center;
   background-color: #72ABD8;
   padding: 0;
-  border: 10px solid gray; /* Graue Umrandung */
+  border: 10px solid gray;
   position: relative;
-  flex-grow: 1; /* Allow the pool to grow and fill available space */
+  flex-grow: 1;
 }
 
 .lane-intersection {
@@ -118,7 +118,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-grow: 1; /* Allow the counter to grow and fill available space */
+  flex-grow: 1;
 }
 .counter-left {
   border-right: 10px solid gray;
@@ -126,20 +126,4 @@ export default {
 .counter-right {
   border-left: 10px solid gray;
 }
-/* Media query for rotating the pool view
-@media (max-width: 1000px) {
-  .pool-container {
-    flex-direction: column;
-  }
-  .pool {
-    transform: rotate(90deg);
-    transform-origin: top left;
-    width: 100vh; /* Adjust width to fit the rotated view *
-    height: 100vw; /* Adjust height to fit the rotated view *
-  }
-  .lane {
-    transform: rotate(-90deg);
-    transform-origin: top left;
-  }
-}*/
 </style>

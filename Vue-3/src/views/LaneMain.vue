@@ -29,8 +29,14 @@
               @editActiveSwimmer="editActiveSwimmer"
               @activeSwimmerClicked="rearrangeSwimmer"
           ></active-swimmer>
+          <minimized-swimmer
+              v-for="swimmer in minimizedSwimmers"
+              :key="'minimizedSwimmer' + swimmer.id"
+              :swimmer="swimmer"
+              @showActiveSwimmer="showActiveSwimmer"
+          ></minimized-swimmer>
         </v-col>
-        <v-col class="col-12 col-lg-4">
+        <v-col class="col-12 col-lg-4 pb-4">
           <div id="inactiveSwimmers">
             <inactive-swimmer
                 v-for="swimmer in inactiveSwimmers"
@@ -55,6 +61,7 @@
         @breakSwimming="removeSwimmerFromActiveList"
         @leaveLane="removeSwimmerFromLane"
         @editSwimmer="editSwimmerCharacteristics"
+        @minimizeSwimmer="minimizeSwimmer"
         @close="">
     </edit-active-swimmer-modal>
     <edit-swimmer-characteristics-modal
@@ -73,10 +80,12 @@ import EditInactiveSwimmerModal from "../components/swimmer-management/EditInact
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
 import EditActiveSwimmerModal from "../components/swimmer-management/EditActiveSwimmerModal.vue";
 import EditSwimmerCharacteristicsModal from "../components/swimmer-management/EditSwimmerCharacteristicsModal.vue";
+import MinimizedSwimmer from "../components/swimmer-management/MinimizedSwimmer.vue";
 
 export default {
   name: "LaneSelect",
   components: {
+    MinimizedSwimmer,
     EditSwimmerCharacteristicsModal,
     EditInactiveSwimmerModal,
     EditActiveSwimmerModal,
@@ -249,10 +258,13 @@ export default {
   },
   computed: {
     activeSwimmers() {
-      return this.swimmers.filter(s => s.isActive)
+      return this.swimmers.filter(s => s.isActive && !s.isMinimized)
     },
     inactiveSwimmers() {
       return this.swimmers.filter(s => !s.isActive)
+    },
+    minimizedSwimmers() {
+      return this.swimmers.filter(s => s.isActive && s.isMinimized)
     }
   },
   methods: {
@@ -281,13 +293,22 @@ export default {
         this.swimmers.splice(index, 1, updatedSwimmer);
       }
     },
-    rearrangeSwimmer(swimmer) {
-      const index = this.swimmers.findIndex(s => s.id === swimmer.id);
-      if (index !== -1) {
-        this.swimmers.splice(index, 1);
-        this.swimmers.push(swimmer);
-      }
+    minimizeSwimmer(swimmer) {
+      swimmer.isMinimized = true;
     },
+    showActiveSwimmer(swimmer) {
+      swimmer.isMinimized = false;
+      this.rearrangeSwimmer(swimmer);
+    },
+    rearrangeSwimmer(swimmer) {
+      if (this.activeSwimmers.length > 1) {
+        const index = this.swimmers.findIndex(s => s.id === swimmer.id);
+        if (index !== -1) {
+          this.swimmers.splice(index, 1);
+          this.swimmers.push(swimmer);
+        }
+      }
+    }
   }
 }
 </script>

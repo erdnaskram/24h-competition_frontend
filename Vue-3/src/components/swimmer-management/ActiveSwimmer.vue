@@ -185,6 +185,7 @@ export default {
       isCooldownActive: false,
       now: Date.now(),
       isClickConfirmationActive: false,
+      minimizeSwimmer: false,
     };
   },
   computed: {},
@@ -202,7 +203,7 @@ export default {
       if (this.lastIncrementTime && (new Date().getTime() - this.lastIncrementTime) < this.incrementCoolDown) {
         return; // Cooldown period not yet passed
       }
-      this.$emit("activeSwimmerClicked", this.localSwimmer);
+      this.$emit("activeSwimmerClicked", this.swimmer);
       this.incrementLaneCount();
     },
     incrementLaneCount() {
