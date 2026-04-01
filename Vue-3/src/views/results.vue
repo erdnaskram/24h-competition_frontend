@@ -1,22 +1,36 @@
 <template>
-  <section>
-  <div id="count">
-    {{ currentTime }} - {{ formatDistance(laneSumm)}}
-    <BButton pill variant="warning" @click="$router.back()">Go back</BButton>
-  </div>
-  <div id="resultcontainer" ref="container">
-    <div id="results" ref="results">
-      <div v-for="result in results" class="result">
-        #{{ result.id }} - {{result.first_name}} {{result.last_name}}: {{formatDistance(result.lanes)}}
+  <section class="tv-screen">
+    <div id="count">
+      {{ currentTime }} - {{ formatDistance(laneSumm) }}
+    </div>
+
+    <div id="resultcontainer">
+      <div
+          class="scroll-wrapper"
+          :style="{ animationDuration: scrollDuration + 's' }"
+      >
+
+        <div class="results-block">
+          <div v-for="result in results" :key="'orig-' + result.id" class="result">
+            #{{ result.id }} - {{ result.first_name }} {{ result.last_name }}: {{ formatDistance(result.lanes) }}
+          </div>
+        </div>
+
+        <div class="results-block">
+          <div v-for="result in results" :key="'copy-' + result.id" class="result">
+            #{{ result.id }} - {{ result.first_name }} {{ result.last_name }}: {{ formatDistance(result.lanes) }}
+          </div>
+        </div>
+
       </div>
     </div>
-    <div style="clear:both"/>
-  </div>
   </section>
 </template>
+
 <script>
-//Constant which is multiplied with the count of participants for optimal scrolling.
-const SCROLL_FACTOR = 800;
+// Umgerechnet in Sekunden für die CSS-Animation (800ms = 0.8s pro Element)
+const SCROLL_FACTOR_SECONDS = 0.8;
+
 export default {
   name: 'Results',
   data() {
@@ -531,6 +545,10 @@ export default {
   computed: {
     laneSumm() {
       return this.results.reduce((sum, result) => sum + (result.lanes || 0), 0);
+    },
+    // Berechnet die Dauer der Animation abhängig von der Anzahl der Teilnehmer
+    scrollDuration() {
+      return this.results.length * SCROLL_FACTOR_SECONDS;
     }
   },
   methods: {
@@ -548,76 +566,25 @@ export default {
         return meters + ' m';
       }
     },
-
-    animateScroll(target, duration) {
-      let start = this.$refs.container.scrollTop;
-      let change = target - start;
-      let startTime = performance.now();
-
-      let animateScroll = (currentTime) => {
-        let timeElapsed = currentTime - startTime;
-        let progress = timeElapsed / duration;
-
-        if (progress > 1) {
-          progress = 1;
-        }
-
-        let easeInOutQuad = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
-        this.$refs.container.scrollTop = start + change * easeInOutQuad;
-
-        if (progress < 1) {
-          requestAnimationFrame(animateScroll);
-        }
-      };
-
-      requestAnimationFrame(animateScroll);
-    },
-    doAnimation() {
-      // Scrollen Sie nach unten
-      let durration = SCROLL_FACTOR * this.results.length;
-      this.animateScroll(this.$refs.results.clientHeight, durration, 'linear');
-
-      // Warten Sie einige Sekunden (z.B. 5 Sekunden)
-      setTimeout(() => {
-        // Scrollen Sie nach oben
-        this.animateScroll(0, 100);
-
-        // Warten Sie einige Sekunden (z.B. 5 Sekunden), bevor Sie die Animation erneut ausführen
-        setTimeout(() => {
-          this.doAnimation();
-        }, 60);
-      }, durration);
-    },
-
-    pollResults() {
-      $.ajax({
-        url: 'results',
-        method: 'POST',
-        success: function (e) {
-          this.results = e;
-        },
-        complete: function () {
-          setTimeout(this.pollResults, 60000);
-        }
-      });
-    }
   },
   mounted() {
     this.timer = setInterval(this.updateTime, 1000);
-    this.doAnimation();
+
     this.timer2 = setInterval(() => {
       this.baseValue += Math.floor(Math.random() * (500 - 50 + 1)) + 50;
     }, 5000);
   },
-  beforeDestroy() {
+  // WICHTIG: In Vue 3 heißt das beforeUnmount (nicht mehr beforeDestroy)
+  beforeUnmount() {
     clearInterval(this.timer);
     clearInterval(this.timer2);
   }
-
 }
 </script>
+
 <style scoped>
-html, body {
+/* Globale Resets für den Bildschirm */
+.tv-screen {
   background-color: black;
   width: 100%;
   height: 100%;
@@ -625,19 +592,31 @@ html, body {
   overflow: hidden;
 }
 
+/* Der Container der die Liste beschneidet */
 #resultcontainer {
   background-color: black;
   position: absolute;
-  top: 0;
+  top: 150px; /* Platz für den Header lassen */
   left: 0;
   bottom: 0;
   right: 0;
-  width: auto;
-  clientHeight: auto;
-  padding-top: 150px;
-  overflow-y: scroll;
+  overflow: hidden; /* WICHTIG: Kein scroll mehr! CSS übernimmt. */
 }
 
+/* Der animierte Wrapper */
+.scroll-wrapper {
+  /* animation-duration wird inline per Vue dynamisch gesetzt */
+  animation-name: scroll-vertical;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Stellt sicher, dass Original und Kopie exakt gleich hoch sind */
+.results-block {
+  width: 100%;
+}
+
+/* Dein Original-Styling */
 #count {
   position: absolute;
   top: 0;
@@ -648,9 +627,13 @@ html, body {
   color: white;
   font-family: Arial;
   font-weight: bold;
+  background-color: #bf0f0f;
+  z-index: 100;
 }
 
-#results {
+/* Font-Styling aus #results wurde in .scroll-wrapper verlagert,
+   da die ID #results entfernt wurde */
+.scroll-wrapper {
   font-size: 60px;
   color: white;
   font-family: Arial;
@@ -662,8 +645,13 @@ html, body {
   min-width: 35em;
 }
 
-#count {
-  background-color: #bf0f0f;
-  z-index: 100;
+/* Die Magie */
+@keyframes scroll-vertical {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
 }
 </style>
