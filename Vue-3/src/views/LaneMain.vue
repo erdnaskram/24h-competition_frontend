@@ -1,27 +1,61 @@
 <template>
-  <b-navbar class="dark-navbar" v-b-color-mode="'dark'" fixed="top">
-    <BNavbarBrand to="/">DLRG 24 Hours</BNavbarBrand>
-    <BNavbarBrand> - Bahn {{ laneId }}</BNavbarBrand>
-    <BNavbarNav class="ms-auto mb-2 mb-lg-0">
-      <BNavItem
+  <v-navigation-drawer
+      v-model="drawer"
+      location="right"
+      temporary
+      color="#013157"
+  >
+    <v-list-item
+        prepend-icon="mdi-swim"
+        title="DLRG 24 Hours"
+        :subtitle="'Bahn ' + laneId"
+        class="drawer-header-item brand-link"
+    ></v-list-item>
+    <v-list nav density="compact" class="mt-2">
+      <v-list-item
           v-for="lane in laneStore.lanes"
-          :key="'dropDownItemLane' + lane.id"
-          :variant="lane.id === laneId ? 'success' : ''"
-          :disabled="laneId === lane.id"
+          :key="'drawerLane' + lane.id"
+          :title="lane.name"
           :to="'/lane/' + lane.id"
-      >
-        {{ lane.name }}
-      </BNavItem>
+          :active="lane.id === laneId"
+          active-color="white"
+          class="drawer-item"
+          :class="{ 'drawer-item-active': lane.id === laneId }"
+          @click="drawer = false"
+      ></v-list-item>
+    </v-list>
+  </v-navigation-drawer>
 
-    </BNavbarNav>
-  </b-navbar>
+  <v-app-bar color="#013157" elevation="4" density="comfortable">
+    <v-app-bar-title class="brand-link">
+      DLRG 24 Hours – Bahn {{ laneId }}
+    </v-app-bar-title>
+    <!-- Desktop: Buttons direkt in der App-Bar -->
+    <v-btn
+        v-for="lane in laneStore.lanes"
+        :key="'navLane' + lane.id"
+        color="white"
+        :variant="lane.id === laneId ? 'outlined' : 'text'"
+        :class="lane.id === laneId ? 'active-lane-btn' : ''"
+        :disabled="lane.id === laneId"
+        :to="'/lane/' + lane.id"
+        class="d-none d-lg-flex mx-1"
+    >
+      <v-icon v-if="lane.id === laneId" start>mdi-swim</v-icon>
+      {{ lane.name }}
+    </v-btn>
+    <!-- Mobile/Tablet: Hamburger-Menü -->
+    <v-app-bar-nav-icon
+        color="white"
+        class="d-lg-none"
+        @click="drawer = !drawer"
+    ></v-app-bar-nav-icon>
+  </v-app-bar>
 
-  <section class="mt-5">
-
-    <!-- Begin page content -->
-    <main role="main" class="container-fluid" style="margin-top: 60px">
+  <v-main style="padding-top: 0 !important;">
+    <v-container fluid class="pa-2">
       <v-row>
-        <v-col class="col-12 col-lg-8">
+        <v-col cols="12" lg="8">
           <active-swimmer
               v-for="swimmer in activeSwimmers"
               :key="'activeSwimmer' + swimmer.id"
@@ -36,41 +70,40 @@
               @showActiveSwimmer="showActiveSwimmer"
           ></minimized-swimmer>
         </v-col>
-        <v-col class="col-12 col-lg-4 pb-4">
-          <div id="inactiveSwimmers">
-            <inactive-swimmer
-                v-for="swimmer in inactiveSwimmers"
-                :swimmer="swimmer"
-                :hide-info-default="true"
-                @inactiveSwimmerClicked="inactiveSwimmerClicked"
-            ></inactive-swimmer>
-          </div>
+        <v-col cols="12" lg="4" class="pb-4">
+          <inactive-swimmer
+              v-for="swimmer in inactiveSwimmers"
+              :key="'inactiveSwimmer' + swimmer.id"
+              :swimmer="swimmer"
+              :hide-info-default="true"
+              @inactiveSwimmerClicked="inactiveSwimmerClicked"
+          ></inactive-swimmer>
         </v-col>
       </v-row>
-    </main>
+    </v-container>
+  </v-main>
 
-    <edit-inactive-swimmer-modal
-        ref="displayInactiveSwimmerModal"
-        @startSwimming="addSwimmerToActiveList"
-        @leaveLane="removeSwimmerFromLane"
-        @editSwimmer="editSwimmerCharacteristics"
-        @close="">
-    </edit-inactive-swimmer-modal>
-    <edit-active-swimmer-modal
-        ref="editActiveSwimmerModal"
-        @breakSwimming="removeSwimmerFromActiveList"
-        @leaveLane="removeSwimmerFromLane"
-        @editSwimmer="editSwimmerCharacteristics"
-        @minimizeSwimmer="minimizeSwimmer"
-        @close="">
-    </edit-active-swimmer-modal>
-    <edit-swimmer-characteristics-modal
-        ref="editSwimmerCharacteristicsModal"
-        @saveChanges="saveSwimmerCharacteristicsChanges"
-        @startSwimming="addSwimmerToActiveList"
-        @close="">
-    </edit-swimmer-characteristics-modal>
-  </section>
+  <edit-inactive-swimmer-modal
+      ref="displayInactiveSwimmerModal"
+      @startSwimming="addSwimmerToActiveList"
+      @leaveLane="removeSwimmerFromLane"
+      @editSwimmer="editSwimmerCharacteristics"
+      @close="">
+  </edit-inactive-swimmer-modal>
+  <edit-active-swimmer-modal
+      ref="editActiveSwimmerModal"
+      @breakSwimming="removeSwimmerFromActiveList"
+      @leaveLane="removeSwimmerFromLane"
+      @editSwimmer="editSwimmerCharacteristics"
+      @minimizeSwimmer="minimizeSwimmer"
+      @close="">
+  </edit-active-swimmer-modal>
+  <edit-swimmer-characteristics-modal
+      ref="editSwimmerCharacteristicsModal"
+      @saveChanges="saveSwimmerCharacteristicsChanges"
+      @startSwimming="addSwimmerToActiveList"
+      @close="">
+  </edit-swimmer-characteristics-modal>
 </template>
 
 <script>
@@ -83,7 +116,7 @@ import EditSwimmerCharacteristicsModal from "../components/swimmer-management/Ed
 import MinimizedSwimmer from "../components/swimmer-management/MinimizedSwimmer.vue";
 
 export default {
-  name: "LaneSelect",
+  name: "LaneMain",
   components: {
     MinimizedSwimmer,
     EditSwimmerCharacteristicsModal,
@@ -95,13 +128,7 @@ export default {
   data() {
     return {
       laneId: null,
-      lanes: [
-        {id: 1, name: "Bahn 1"},
-        {id: 2, name: "Bahn 2"},
-        {id: 3, name: "Bahn 3"},
-        {id: 4, name: "Bahn 4"},
-        {id: 5, name: "Bahn 5"},
-      ],
+      drawer: false,
       showEditSwimmerModal: false,
       showMessageModal: false,
       swimmers: [
@@ -246,15 +273,15 @@ export default {
   },
   setup() {
     const laneStore = useLaneStore();
-    return {
-      laneStore
-    };
+    return {laneStore};
   },
   mounted() {
     this.laneId = Number.parseInt(this.$route.params.id);
   },
-  beforeUpdate() {
-    this.laneId = Number.parseInt(this.$route.params.id);
+  watch: {
+    '$route.params.id'(newId) {
+      this.laneId = Number.parseInt(newId);
+    }
   },
   computed: {
     activeSwimmers() {
@@ -314,12 +341,34 @@ export default {
 </script>
 
 <style scoped>
-.dark-navbar {
-  background-color: #013157 !important;
-  color: white !important;
-  height: 80px; /* Adjust the height as needed */
-  padding: 20px; /* Adjust the padding as needed */
-  font-size: 1.2rem; /* Adjust the font size as needed */
+.active-lane-btn {
+  font-weight: bold;
+  opacity: 1 !important;
 }
 
+.brand-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+}
+
+.drawer-header-item {
+  color: white !important;
+}
+
+.drawer-item {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.drawer-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.drawer-item-active {
+  color: white !important;
+  font-weight: bold;
+}
 </style>

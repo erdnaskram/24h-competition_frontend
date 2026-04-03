@@ -41,7 +41,7 @@ export default {
 
 <style scoped>
 .header-placeholder {
-  height: 80px;
+  height: 48px;
 }
 .v-application {
   background-image: url('assets/Background.png'); /* Pfad zu Ihrem Hintergrundbild */
