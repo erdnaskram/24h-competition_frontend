@@ -10,7 +10,7 @@
         :key="swimmer.id"
         class="mb-2"
         variant="flat"
-        style="background-color: white;"
+        :style="swimmer.lane ? 'background-color: #E8F5E9; border-left: 5px solid #4CAF50;' : 'background-color: white;'"
         hover
         @click="$emit('select', swimmer)"
     >

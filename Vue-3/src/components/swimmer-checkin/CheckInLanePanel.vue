@@ -132,9 +132,9 @@ export default {
   },
   methods: {
     getLaneColor(participants) {
-      if (participants >= this.laneColourRed)    return '#cc3232';
-      if (participants >= this.laneColourYellow) return '#e7b416';
-      return '#99c140';
+      if (participants >= this.laneColourRed)    return '#F44336';
+      if (participants >= this.laneColourYellow) return '#FFC107';
+      return '#8BC34A';
     },
     formatTime(seconds) {
       if (!seconds) return '--:--';

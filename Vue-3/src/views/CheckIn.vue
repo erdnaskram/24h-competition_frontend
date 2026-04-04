@@ -16,22 +16,14 @@
         </div>
 
         <!-- Kompakte Bahnanzeige (nur Mobile) -->
-        <div class="mobile-top d-md-none">
-          <div class="d-flex lane-strip mb-3">
-            <div
-                v-for="lane in lanesWithCounts"
-                :key="lane.id"
-                class="lane-strip-item"
-                :style="{ borderTop: '3px solid ' + getLaneColor(lane.participants), backgroundColor: filterLane === lane.id ? '#e8f0f7' : 'white' }"
-                @click="filterLane = filterLane === lane.id ? null : lane.id"
-                @touchstart.passive="startLongPress"
-                @touchend.passive="cancelLongPress"
-                @touchmove.passive="cancelLongPress"
-            >
-              <div class="lane-strip-title">Bahn {{ lane.id }}</div>
-              <div class="lane-strip-count" :style="{ color: getLaneColor(lane.participants) }">{{ lane.participants }}</div>
-            </div>
-          </div>
+        <div class="mobile-top d-md-none mb-3">
+          <CheckInMobileLaneStrip
+              :lanes="lanesWithCounts"
+              :laneColourYellow="laneColourYellow"
+              :laneColourRed="laneColourRed"
+              v-model:filterLane="filterLane"
+              @longpress="showColorLimitsMobile = true"
+          />
         </div>
 
         <div class="swimmer-scroll">
@@ -107,16 +99,16 @@
 import CheckInAssignDialog from "../components/swimmer-checkin/CheckInAssignDialog.vue";
 import CheckInLanePanel from "../components/swimmer-checkin/CheckInLanePanel.vue";
 import CheckInSearchBar from "../components/swimmer-checkin/CheckInSearchBar.vue";
+import CheckInMobileLaneStrip from "../components/swimmer-checkin/CheckInMobileLaneStrip.vue";
 
 export default {
   name: 'CheckIn',
-  components: {CheckInSearchBar, CheckInLanePanel, CheckInAssignDialog},
+  components: {CheckInMobileLaneStrip, CheckInSearchBar, CheckInLanePanel, CheckInAssignDialog},
   data() {
     return {
       searchQuery: '',
       showLaneDialog: false,
       showColorLimitsMobile: false,
-      longPressTimer: null,
       selectedSwimmer: null,
       showKeyboard: false,
       recommendedLane: null,
@@ -223,22 +215,6 @@ export default {
     },
   },
   methods: {
-    startLongPress() {
-      this.longPressTimer = setTimeout(() => {
-        this.showColorLimitsMobile = true;
-      }, 600);
-    },
-
-    cancelLongPress() {
-      clearTimeout(this.longPressTimer);
-    },
-
-    getLaneColor(participants) {
-      if (participants >= this.laneColourRed)    return '#cc3232';
-      if (participants >= this.laneColourYellow) return '#e7b416';
-      return '#99c140';
-    },
-
     clearFilter() {
       this.searchQuery = '';
     },
@@ -299,35 +275,6 @@ export default {
 </script>
 
 <style scoped>
-/* ── Kompakte Bahnanzeige (Mobile) ── */
-.lane-strip {
-  gap: 6px;
-  overflow-x: auto;
-}
-
-.lane-strip-item {
-  flex: 1;
-  min-width: 60px;
-  background-color: white;
-  border-radius: 6px;
-  padding: 6px 8px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.lane-strip-title {
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #013157;
-}
-
-.lane-strip-count {
-  font-size: 1.2rem;
-  font-weight: bold;
-  line-height: 1.2;
-}
-
 /* ── Sticky Layout (alle Größen) ── */
 .checkin-container {
   height: calc(100vh - 48px);
