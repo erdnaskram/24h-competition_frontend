@@ -1,18 +1,25 @@
 <template>
-  <br>
-  <h1>Hallo, wähle deine Bahn</h1>
-  <BRow>
-    <BCol></BCol>
-    <BCol lg="10">
-      <the-pool :lane-count="laneStore.laneCount" counter-position="left" :reverse-lanes="true"></the-pool>
-    </BCol>
-    <BCol></BCol>
-  </BRow>
+  <v-container class="py-6">
+    <v-row justify="center">
+      <v-col cols="12" class="text-center mb-2">
+        <h1>Hallo, wähle deine Bahn</h1>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12" lg="11" xl="8">
+        <the-pool
+            :lane-count="laneStore.laneCount"
+            counter-position="left"
+            :reverse-lanes="true"
+        />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
 import ThePool from "../components/UI/ThePool.vue";
-import { useLaneStore } from "../store/index.js";
+import {useLaneStore} from "../store/index.js";
 
 export default {
   name: "LaneSelect",
@@ -21,31 +28,13 @@ export default {
     const laneStore = useLaneStore();
     return {laneStore};
   },
-  data() {
-    return {
-      width: window.innerWidth,
-    };
-  },
-  computed: {
-  },
-  created() {
-    window.addEventListener('resize', this.updateWidth);
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.updateWidth);
-  },
-  methods: {
-    updateWidth() {
-      this.width = window.innerWidth;
-    }
-  }
 }
 </script>
 
 <style scoped>
 h1 {
-  text-align: center;
   color: #013157;
-  margin-bottom: 1em;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: bold;
 }
 </style>
