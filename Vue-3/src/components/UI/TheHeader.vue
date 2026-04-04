@@ -7,7 +7,7 @@
     <!-- Desktop-Navigation -->
     <template v-slot:append>
       <div class="d-none d-md-flex align-center ga-1 mr-2">
-        <v-menu open-on-hover>
+        <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" variant="text" color="white" append-icon="mdi-chevron-down">
               Bahnen

@@ -1,8 +1,10 @@
 /* src/assets/global.css */
 body, html {
-    background-image: url('Background.png'); /* Pfad zu Ihrem Hintergrundbild */
-    background-size: cover; /* Bildgröße an den Bildschirm anpassen */
-    background-position: center; /* Bild zentrieren */
-    background-repeat: no-repeat; /* Bild nicht wiederholen */
-    background-attachment: fixed; /* Hintergrundbild fixieren */
+    overflow-x: hidden;
+    max-width: 100%;
+    background-image: url('Background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }

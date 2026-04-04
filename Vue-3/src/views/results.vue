@@ -583,47 +583,27 @@ export default {
 </script>
 
 <style scoped>
-/* Globale Resets für den Bildschirm */
 .tv-screen {
-  background-color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-/* Der Container der die Liste beschneidet */
-#resultcontainer {
   background-color: black;
-  position: absolute;
-  top: 150px; /* Platz für den Header lassen */
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow: hidden; /* WICHTIG: Kein scroll mehr! CSS übernimmt. */
+  overflow: hidden;
+  z-index: 10;
 }
 
-/* Der animierte Wrapper */
-.scroll-wrapper {
-  /* animation-duration wird inline per Vue dynamisch gesetzt */
-  animation-name: scroll-vertical;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-/* Stellt sicher, dass Original und Kopie exakt gleich hoch sind */
-.results-block {
-  width: 100%;
-}
-
-/* Dein Original-Styling */
 #count {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   text-align: center;
-  font-size: 120px;
+  /* fluid: ~28px auf 375px Handy, ~80px auf 1200px, 120px auf 1800px+ TV */
+  font-size: clamp(1.75rem, 7vw, 7.5rem);
+  line-height: 1.15;
+  padding: 0.1em 0;
   color: white;
   font-family: Arial;
   font-weight: bold;
@@ -631,27 +611,56 @@ export default {
   z-index: 100;
 }
 
-/* Font-Styling aus #results wurde in .scroll-wrapper verlagert,
-   da die ID #results entfernt wurde */
+#resultcontainer {
+  background-color: black;
+  position: absolute;
+  /* passt sich an die Höhe des #count-Headers an (ca. 1.35 × font-size) */
+  top: clamp(50px, 9.5vw, 160px);
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+
 .scroll-wrapper {
-  font-size: 60px;
+  animation-name: scroll-vertical;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  /* fluid: ~16px auf 375px Handy, ~42px auf 1200px, 60px auf 1714px+ TV */
+  font-size: clamp(1rem, 3.5vw, 3.75rem);
   color: white;
   font-family: Arial;
 }
 
-.result {
-  display: inline-block;
-  padding-left: 25px;
-  min-width: 35em;
+.results-block {
+  width: 100%;
 }
 
-/* Die Magie */
+.result {
+  display: block;
+  width: 100%;
+  padding: 0.05em 0.5em;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ab 1200px (Desktop / TV): Mehrspaltiges Layout wie vorher */
+@media (min-width: 1200px) {
+  .result {
+    display: inline-block;
+    width: auto;
+    min-width: 35em;
+    padding-left: 25px;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
+  }
+}
+
 @keyframes scroll-vertical {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
 }
 </style>

@@ -1,40 +1,75 @@
 <template>
-  <BRow class="m-2 pt-4">
-    <BCol >
-      <b-button variant="success" @click="openAddLaneModal()">Add Lane</b-button>
-    </BCol>
-  </BRow>
-  <BRow class="p-2">
-    <BCol>
-      <div>
-        <BRow v-for="(lane, index) in laneStore.lanes" :key="lane.id" class="m-2" style="background: #f2f2f2">
-          <BCol  lg="2">
-            <h2>{{ lane.id }} - {{ lane.name }}</h2>
-          </BCol>
-          <BCol lg="1">
-            <BButton
-                :disabled="!(index === laneStore.lanes.length - 1) || index === 0"
-                variant="danger"
-                pill
-                @click="removeLane(lane.id)"
-            >
-              Löschen
-            </BButton>
-          </BCol>
-        </BRow>
-      </div>
-    </BCol>
-  </BRow>
-  <BModal v-model="showAddLaneModal" title="Add New Lane" v-on:ok="addLane()">
-    <div>
-      <label for="laneId">Lane ID:</label>
-      <BFormInput type="text" v-model="newId" id="laneId" disabled/>
-    </div>
-    <div>
-      <label for="laneName">Lane Name:</label>
-      <BFormInput type="text" v-model="newLaneName" id="laneName"/>
-    </div>
-  </BModal>
+  <v-container class="py-6">
+
+    <v-row align="center" class="mb-4">
+      <v-col>
+        <span class="text-h5 font-weight-bold">Bahn-Verwaltung</span>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn
+            color="success"
+            prepend-icon="mdi-plus"
+            @click="openAddLaneModal"
+        >
+          Bahn hinzufügen
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
+          v-for="(lane, index) in laneStore.lanes"
+          :key="lane.id"
+          cols="12"
+      >
+        <v-card variant="flat" style="background-color: #f2f2f2;" class="px-4 py-3">
+          <v-row align="center" no-gutters>
+            <v-col>
+              <span class="text-h6">{{ lane.id }} – {{ lane.name }}</span>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn
+                  color="error"
+                  variant="tonal"
+                  prepend-icon="mdi-delete"
+                  :disabled="!(index === laneStore.lanes.length - 1) || index === 0"
+                  @click="removeLane(lane.id)"
+              >
+                Löschen
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-dialog v-model="showAddLaneModal" max-width="480" persistent>
+      <v-card title="Neue Bahn hinzufügen">
+        <v-card-text>
+          <v-text-field
+              :model-value="newId"
+              label="Bahn-ID"
+              disabled
+              variant="outlined"
+              class="mb-2"
+          />
+          <v-text-field
+              v-model="newLaneName"
+              label="Bahn-Name"
+              variant="outlined"
+              autofocus
+              @keyup.enter="addLane"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" @click="addLane">Hinzufügen</v-btn>
+          <v-spacer />
+          <v-btn color="grey-darken-2" @click="showAddLaneModal = false">Abbrechen</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+  </v-container>
 </template>
 
 <script>
@@ -47,55 +82,30 @@ export default {
   },
   data() {
     return {
-      localLaneCount: 0,
       showAddLaneModal: false,
       newLaneName: '',
     };
   },
-  mounted() {
-    this.localLaneCount = this.laneStore.laneCount;
-  },
   computed: {
     newId() {
-      return this.laneStore.lanes.length ? Math.max(...this.laneStore.lanes.map(lane => lane.id)) + 1 : 1;
+      return this.laneStore.lanes.length
+          ? Math.max(...this.laneStore.lanes.map(lane => lane.id)) + 1
+          : 1;
     }
   },
   methods: {
-    goToAbout() {
-      this.$router.push('/about')
-    },
-    updateLaneCount(newCount) {
-      this.laneStore.setLaneCount(newCount);
-    },
     removeLane(id) {
       this.laneStore.removeLane(id);
     },
     addLane() {
-      const newLane = {
-        id: this.newId,
-        name: this.newLaneName
-      };
-      console.log(newLane);
-      this.laneStore.addLane(newLane);
+      this.laneStore.addLane({ id: this.newId, name: this.newLaneName });
       this.showAddLaneModal = false;
       this.newLaneName = '';
     },
     openAddLaneModal() {
-      this.showAddLaneModal = true;
       this.newLaneName = 'Bahn ' + this.newId;
-    }
-  },
-  watch: {
-    laneStore: {
-      handler() {
-        this.localLaneCount = this.laneStore.laneCount;
-      },
-      deep: true
+      this.showAddLaneModal = true;
     },
-  }
+  },
 }
 </script>
-
-<style scoped>
-
-</style>
