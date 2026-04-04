@@ -4,14 +4,15 @@
         v-for="lane in lanes"
         :key="lane.id"
         class="lane-strip-item"
-        :style="{ borderTop: '3px solid ' + getLaneColor(lane.participants), backgroundColor: filterLane === lane.id ? '#e8f0f7' : 'white' }"
-        @click="$emit('update:filterLane', filterLane === lane.id ? null : lane.id)"
+        :style="{ borderTop: '3px solid ' + getLaneColor(lane.participants), backgroundColor: filterLane.includes(lane.id) ? '#e8f0f7' : 'white' }"
+        @click="$emit('update:filterLane', filterLane.includes(lane.id) ? filterLane.filter(id => id !== lane.id) : [...filterLane, lane.id])"
         @touchstart.passive="startLongPress"
         @touchend.passive="cancelLongPress"
         @touchmove.passive="cancelLongPress"
     >
       <div class="lane-strip-title">Bahn {{ lane.id }}</div>
       <div class="lane-strip-count" :style="{ color: getLaneColor(lane.participants) }">{{ lane.participants }}</div>
+      <div v-if="lane.activeParticipants > 0" class="lane-strip-active">{{ lane.activeParticipants }} aktiv</div>
     </div>
   </div>
 </template>
@@ -23,7 +24,7 @@ export default {
     lanes:            { type: Array,  required: true },
     laneColourYellow: { type: Number, required: true },
     laneColourRed:    { type: Number, required: true },
-    filterLane:       { type: Number, default: null },
+    filterLane:       { type: Array,  default: () => [] },
   },
   emits: ['update:filterLane', 'longpress'],
   data() {
@@ -72,6 +73,13 @@ export default {
 .lane-strip-count {
   font-size: 1.2rem;
   font-weight: bold;
+  line-height: 1.2;
+}
+
+.lane-strip-active {
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: #2E7D32;
   line-height: 1.2;
 }
 </style>

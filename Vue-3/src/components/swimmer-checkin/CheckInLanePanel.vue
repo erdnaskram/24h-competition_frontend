@@ -8,19 +8,19 @@
         class="mb-2 lane-card"
         :style="{
           borderLeft: '5px solid ' + getLaneColor(lane.participants),
-          outline: filterLane === lane.id ? '2px solid #013157' : 'none',
-          backgroundColor: filterLane === lane.id ? '#e8f0f7' : 'white',
+          outline: filterLane.includes(lane.id) ? '2px solid #013157' : 'none',
+          backgroundColor: filterLane.includes(lane.id) ? '#e8f0f7' : 'white',
         }"
         hover
         style="cursor: pointer;"
-        @click="$emit('update:filterLane', filterLane === lane.id ? null : lane.id)"
+        @click="$emit('update:filterLane', filterLane.includes(lane.id) ? filterLane.filter(id => id !== lane.id) : [...filterLane, lane.id])"
     >
       <v-card-text class="pa-3">
         <v-row align="center" no-gutters>
           <v-col>
             <div class="d-flex align-center ga-2">
               <div class="lane-card-title">Bahn {{ lane.id }}</div>
-              <v-chip v-if="filterLane === lane.id" size="x-small" style="background-color: #013157 !important; color: white !important;">
+              <v-chip v-if="filterLane.includes(lane.id)" size="x-small" style="background-color: #013157 !important; color: white !important;">
                 <v-icon start size="10">mdi-filter</v-icon>
                 Gefiltert
               </v-chip>
@@ -29,7 +29,7 @@
               Ø {{ formatTime(lane.averageTimeSeconds) }}
             </div>
           </v-col>
-          <v-col cols="auto">
+          <v-col cols="auto" class="d-flex flex-column align-end ga-1">
             <v-chip
                 :style="{ backgroundColor: getLaneColor(lane.participants) + ' !important', minWidth: '48px', justifyContent: 'center' }"
                 size="default"
@@ -39,6 +39,9 @@
               {{ lane.participants }}
               <v-icon end size="14">mdi-account</v-icon>
             </v-chip>
+            <span v-if="lane.activeParticipants > 0" class="text-caption font-weight-bold" style="color: #2E7D32;">
+              {{ lane.activeParticipants }} aktiv
+            </span>
           </v-col>
         </v-row>
         <v-progress-linear
@@ -124,7 +127,7 @@ export default {
     laneColourYellow:     { type: Number, required: true },
     laneColourRed:        { type: Number, required: true },
     totalDistanceFormatted: { type: String, required: true },
-    filterLane:           { type: Number, default: null },
+    filterLane:           { type: Array,  default: () => [] },
   },
   emits: ['update:laneColourYellow', 'update:laneColourRed', 'update:filterLane'],
   data() {

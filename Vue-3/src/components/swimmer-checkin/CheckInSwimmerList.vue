@@ -27,12 +27,13 @@
               &nbsp;&bull;&nbsp;
               <v-icon size="14">mdi-swim</v-icon>
               {{ swimmer.lanes }} Bahnen / {{ (swimmer.lanes * 25).toLocaleString('de-DE') }} m
-              <span v-if="swimmer.lane" class="font-weight-bold ml-2">
-                · {{ swimmer.isActive ? 'Schwimmt auf' : 'Eingeteilt auf' }} Bahn {{ swimmer.lane }}
+              <span v-if="swimmer.lane" class="font-weight-bold d-block d-sm-inline" :style="{ color: swimmer.isActive ? '#2E7D32' : '#757575' }">
+                <span class="d-none d-sm-inline">&nbsp;&bull;&nbsp;</span>{{ swimmer.isActive ? 'Schwimmt auf' : 'Eingeteilt auf' }} Bahn {{ swimmer.lane }}
               </span>
             </div>
           </v-col>
-          <v-col cols="auto">
+          <v-col cols="auto" class="d-flex flex-column align-center ga-1">
+            <v-icon v-if="betterLaneSuggestions.has(swimmer.id)" size="18" title="Bessere Bahn verfügbar" style="color: #FB8C00;">mdi-swap-horizontal</v-icon>
             <v-icon color="grey-lighten-1">mdi-chevron-right</v-icon>
           </v-col>
         </v-row>
@@ -45,7 +46,8 @@
 export default {
   name: 'CheckInSwimmerList',
   props: {
-    swimmers: { type: Array, required: true },
+    swimmers:             { type: Array,  required: true },
+    betterLaneSuggestions: { type: Set,   default: () => new Set() },
   },
   emits: ['select'],
   methods: {
