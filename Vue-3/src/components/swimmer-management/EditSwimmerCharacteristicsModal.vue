@@ -397,14 +397,6 @@ export default {
   transform: translateY(-2px);
 }
 
-
-btn-toggle-grid {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  width: 100%;
-}
-
 /* falls du willst, dass die Buttons die Spalten ausfüllen */
 .btn-toggle-grid .v-btn {
   width: 100%;

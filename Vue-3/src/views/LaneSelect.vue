@@ -1,7 +1,7 @@
 <template>
   <v-container class="py-6">
     <v-row justify="center">
-      <v-col cols="12" class="text-center mb-2">
+      <v-col cols="12" class="text-center">
         <h1>Hallo, wähle deine Bahn</h1>
       </v-col>
     </v-row>
