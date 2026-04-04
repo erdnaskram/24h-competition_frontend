@@ -1,9 +1,10 @@
 <template>
   <v-dialog v-model="showModal"
             max-width="1000"
+            :fullscreen="isSmallScreen"
             persistent>
-    <v-card title="Berabeiten">
-      <v-card-text>
+    <v-card title="Berabeiten" :class="isSmallScreen ? 'd-flex flex-column' : ''" style="max-height: 100%;">
+      <v-card-text :style="isSmallScreen ? 'overflow-y: auto; flex: 1 1 0; min-height: 0;' : ''">
         <v-row>
           <v-col
               class="py-2"
@@ -44,23 +45,21 @@
               class="py-2"
           >
             <p>Farbe der Badekleidung</p>
-            <v-btn-toggle
-                v-model="localSwimmer.characteristics.swimwearColor"
-                class="btn-toggle-wrap"
-                border
-                divided
-                color="grey">
-              <v-btn
-                  class="characteristics-btn"
-                  v-for="color in colorMap"
-                  :key="color.id"
-                  :value="color.id"
-              >
-                <v-card :class="'bg-' + color.class"
-                        border="accent thin"
-                        style="width: 40px; height: 40px; border-radius: 10%;">
-
-                </v-card>
+            <template v-if="isSmallScreen">
+              <v-btn-toggle v-model="localSwimmer.characteristics.swimwearColor" border divided color="grey" class="mb-1">
+                <v-btn class="characteristics-btn" v-for="color in colorMap.slice(0, half)" :key="color.id" :value="color.id">
+                  <v-card :class="'bg-' + color.class" border="accent thin" style="width:40px;height:40px;border-radius:10%;"/>
+                </v-btn>
+              </v-btn-toggle>
+              <v-btn-toggle v-model="localSwimmer.characteristics.swimwearColor" border divided color="grey">
+                <v-btn class="characteristics-btn" v-for="color in colorMap.slice(half)" :key="color.id" :value="color.id">
+                  <v-card :class="'bg-' + color.class" border="accent thin" style="width:40px;height:40px;border-radius:10%;"/>
+                </v-btn>
+              </v-btn-toggle>
+            </template>
+            <v-btn-toggle v-else v-model="localSwimmer.characteristics.swimwearColor" class="btn-toggle-wrap" border divided color="grey">
+              <v-btn class="characteristics-btn" v-for="color in colorMap" :key="color.id" :value="color.id">
+                <v-card :class="'bg-' + color.class" border="accent thin" style="width:40px;height:40px;border-radius:10%;"/>
               </v-btn>
             </v-btn-toggle>
           </v-col>
@@ -70,35 +69,18 @@
               class="py-2"
           >
             <p>Schwimmbrille</p>
-            <v-btn-toggle
-                v-model="localSwimmer.characteristics.googles"
-                class="btn-toggle-wrap"
-                border
-                divided
-                color="grey">
-              <v-btn value="none">
-                <goggles-icon
-                    class="swimmer-characteristics-icon char-purp"
-                    :style="{ fill: 'rgb(var(--v-theme-purple-accent-4))' }"/>
-                <v-icon
-                    style="position: absolute; top: 35%; left: 65%; transform: translate(-50%, -50%);"
-                    size="40"
-                    color="red"
-                >
-                  mdi-close-thick
-                </v-icon>
-              </v-btn>
-              <v-btn
-                  class="characteristics-btn"
-                  v-for="color in colorMap"
-                  :key="color.id"
-                  :value="color.id"
-              >
-                <goggles-icon
-                    class="swimmer-characteristics-icon"
-                    :class="{'icon-border-googles': color.id === 'white' }"
-                    :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/>
-              </v-btn>
+            <template v-if="isSmallScreen">
+              <v-btn-toggle v-model="localSwimmer.characteristics.googles" border divided color="grey" class="mb-1">
+                <v-btn value="none"><goggles-icon class="swimmer-characteristics-icon char-purp" :style="{ fill: 'rgb(var(--v-theme-purple-accent-4))' }"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
+                <v-btn class="characteristics-btn" v-for="color in colorMap.slice(0, half)" :key="color.id" :value="color.id"><goggles-icon class="swimmer-characteristics-icon" :class="{'icon-border-googles': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              </v-btn-toggle>
+              <v-btn-toggle v-model="localSwimmer.characteristics.googles" border divided color="grey">
+                <v-btn class="characteristics-btn" v-for="color in colorMap.slice(half)" :key="color.id" :value="color.id"><goggles-icon class="swimmer-characteristics-icon" :class="{'icon-border-googles': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              </v-btn-toggle>
+            </template>
+            <v-btn-toggle v-else v-model="localSwimmer.characteristics.googles" class="btn-toggle-wrap" border divided color="grey">
+              <v-btn value="none"><goggles-icon class="swimmer-characteristics-icon char-purp" :style="{ fill: 'rgb(var(--v-theme-purple-accent-4))' }"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
+              <v-btn class="characteristics-btn" v-for="color in colorMap" :key="color.id" :value="color.id"><goggles-icon class="swimmer-characteristics-icon" :class="{'icon-border-googles': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
             </v-btn-toggle>
           </v-col>
         </v-row>
@@ -107,33 +89,18 @@
               class="py-2"
           >
             <p>Badekappe</p>
-            <v-btn-toggle
-                v-model="localSwimmer.characteristics.swimCap"
-                border
-                divided
-                color="grey">
-              <v-btn value="none">
-                <hat-icon
-                    class="swimmer-characteristics-icon"/>
-                <v-icon
-                    style="position: absolute; top: 35%; left: 65%; transform: translate(-50%, -50%);"
-                    size="40"
-                    color="red"
-                >
-                  mdi-close-thick
-                </v-icon>
-              </v-btn>
-              <v-btn
-                  class="characteristics-btn"
-                  v-for="color in colorMap"
-                  :key="color.id"
-                  :value="color.id"
-              >
-                <hat-icon
-                    class="swimmer-characteristics-icon"
-                    :class="{'icon-border-hat': color.id === 'white' }"
-                    :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/>
-              </v-btn>
+            <template v-if="isSmallScreen">
+              <v-btn-toggle v-model="localSwimmer.characteristics.swimCap" border divided color="grey" class="mb-1">
+                <v-btn value="none"><hat-icon class="swimmer-characteristics-icon"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
+                <v-btn class="characteristics-btn" v-for="color in colorMap.slice(0, half)" :key="color.id" :value="color.id"><hat-icon class="swimmer-characteristics-icon" :class="{'icon-border-hat': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              </v-btn-toggle>
+              <v-btn-toggle v-model="localSwimmer.characteristics.swimCap" border divided color="grey">
+                <v-btn class="characteristics-btn" v-for="color in colorMap.slice(half)" :key="color.id" :value="color.id"><hat-icon class="swimmer-characteristics-icon" :class="{'icon-border-hat': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              </v-btn-toggle>
+            </template>
+            <v-btn-toggle v-else v-model="localSwimmer.characteristics.swimCap" border divided color="grey">
+              <v-btn value="none"><hat-icon class="swimmer-characteristics-icon"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
+              <v-btn class="characteristics-btn" v-for="color in colorMap" :key="color.id" :value="color.id"><hat-icon class="swimmer-characteristics-icon" :class="{'icon-border-hat': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
             </v-btn-toggle>
           </v-col>
         </v-row>
@@ -142,33 +109,18 @@
               class="py-2"
           >
             <p>Haarfarbe</p>
-            <v-btn-toggle
-                v-model="localSwimmer.characteristics.hair"
-                border
-                divided
-                color="grey">
-              <v-btn value="none">
-                <hair-icon
-                    class="swimmer-characteristics-icon"/>
-                <v-icon
-                    style="position: absolute; top: 35%; left: 65%; transform: translate(-50%, -50%);"
-                    size="40"
-                    color="red"
-                >
-                  mdi-close-thick
-                </v-icon>
-              </v-btn>
-              <v-btn
-                  class="characteristics-btn"
-                  v-for="color in hairColorMap"
-                  :key="color.id"
-                  :value="color.id"
-              >
-                <hair-icon
-                    class="swimmer-characteristics-icon"
-                    :class="{'icon-border-hair': color.id === 'white' }"
-                    :style="{ color: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/>
-              </v-btn>
+            <template v-if="isSmallScreen">
+              <v-btn-toggle v-model="localSwimmer.characteristics.hair" border divided color="grey" class="mb-1">
+                <v-btn value="none"><hair-icon class="swimmer-characteristics-icon"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
+                <v-btn class="characteristics-btn" v-for="color in hairColorMap.slice(0, hairHalf-1)" :key="color.id" :value="color.id"><hair-icon class="swimmer-characteristics-icon" :class="{'icon-border-hair': color.id==='white'}" :style="{ color: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              </v-btn-toggle>
+              <v-btn-toggle v-model="localSwimmer.characteristics.hair" border divided color="grey">
+                <v-btn class="characteristics-btn" v-for="color in hairColorMap.slice(hairHalf-1)" :key="color.id" :value="color.id"><hair-icon class="swimmer-characteristics-icon" :class="{'icon-border-hair': color.id==='white'}" :style="{ color: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              </v-btn-toggle>
+            </template>
+            <v-btn-toggle v-else v-model="localSwimmer.characteristics.hair" border divided color="grey">
+              <v-btn value="none"><hair-icon class="swimmer-characteristics-icon"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
+              <v-btn class="characteristics-btn" v-for="color in hairColorMap" :key="color.id" :value="color.id"><hair-icon class="swimmer-characteristics-icon" :class="{'icon-border-hair': color.id==='white'}" :style="{ color: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
             </v-btn-toggle>
           </v-col>
         </v-row>
@@ -387,7 +339,17 @@ export default {
       this.closeModal();
     },
   },
-  computed: {},
+  computed: {
+    isSmallScreen() {
+      return window.innerWidth < 600;
+    },
+    half() {
+      return Math.ceil(this.colorMap.length / 2);
+    },
+    hairHalf() {
+      return Math.ceil(this.hairColorMap.length / 2);
+    },
+  },
 }
 </script>
 <style scoped>

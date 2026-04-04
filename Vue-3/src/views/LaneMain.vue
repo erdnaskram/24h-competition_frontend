@@ -136,7 +136,7 @@ export default {
           id: 1,
           isActive: false,
           swimmerName: {
-            first: "Max",
+            first: "Max Alfred Klaus",
             last: "Mustermann"
           },
           age: 25,

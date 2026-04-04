@@ -1,44 +1,30 @@
 <template>
-  <v-card
-      class="active-swimmer"
-  >
-    <v-row align="center">
-      <v-col class="col-12 col-md-10">
-        <a class="swimmer-name">
-          {{ swimmer.id }} -
-          {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }}
-          ({{ swimmer.age }}J)
-        </a>
-      </v-col>
-      <v-col class="col-12 col-md-2 d-flex justify-end align-center">
-        <v-btn
-            icon="mdi-eye-off"
-            color="blue"
-            size="small"
-            @click.stop="showActiveSwimmer"
-            :title="'Ausblenden'"
-        ></v-btn>
-      </v-col>
-    </v-row>
+  <v-card class="minimized-swimmer">
+    <div class="swimmer-row">
+      <a class="swimmer-name">
+        {{ swimmer.id }} - {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }} ({{ swimmer.age }}J)
+      </a>
+      <v-btn
+          icon="mdi-eye-off"
+          color="blue"
+          size="small"
+          flex-shrink="0"
+          @click.stop="showActiveSwimmer"
+          title="Einblenden"
+      />
+    </div>
   </v-card>
 </template>
-<script>
 
+<script>
 export default {
   name: "minimizedSwimmer",
-  components: {
-  },
   props: {
     swimmer: {
       type: Object,
       required: true,
     },
   },
-  data() {
-    return {
-    };
-  },
-  computed: {},
   methods: {
     showActiveSwimmer() {
       this.$emit('showActiveSwimmer', this.swimmer);
@@ -48,13 +34,19 @@ export default {
 </script>
 
 <style scoped>
-.active-swimmer {
+.minimized-swimmer {
+  user-select: none;
   background-color: #f0f0f0;
   border: 3px solid gray;
   padding: 10px;
   margin: 5px;
   border-radius: 8px;
-  cursor: pointer;
+}
+
+.swimmer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .swimmer-name {
@@ -62,8 +54,10 @@ export default {
   font-weight: bold;
   color: #013157;
   text-decoration: none;
-}
-.confirmClicked {
-  border-color: #4caf50; /* Vuetify-Grün */
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
