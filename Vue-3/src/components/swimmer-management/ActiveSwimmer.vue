@@ -253,7 +253,7 @@ export default {
 }
 
 .swimmer-name {
-  font-size: 1.7em;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #013157;
   text-decoration: none;
