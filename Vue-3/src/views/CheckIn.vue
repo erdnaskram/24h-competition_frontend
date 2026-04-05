@@ -161,7 +161,7 @@ export default {
         { id: 12, firstName: 'Franziska', lastName: 'Becker',      age: 27, gender: 'f', lanes: 11, averageTimeSeconds:  93, lane: 2,    isActive: false },
         { id: 13, firstName: 'Stefan',    lastName: 'Krause',      age: 44, gender: 'm', lanes: 48, averageTimeSeconds: 113, lane: 1,    isActive: true  },
         { id: 14, firstName: 'Nicole',    lastName: 'Schäfer',     age: 33, gender: 'f', lanes: 22, averageTimeSeconds:  89, lane: null, isActive: false },
-        { id: 15, firstName: 'Andreas',   lastName: 'Richter',     age: 29, gender: 'm', lanes: 17, averageTimeSeconds:  99, lane: 5,    isActive: false },
+        { id: 15, firstName: 'Kim',        lastName: 'Richter',     age: 29, gender: 'd', lanes: 17, averageTimeSeconds:  99, lane: 5,    isActive: false },
         { id: 16, firstName: 'Petra',     lastName: 'Weiß',        age: 55, gender: 'f', lanes: 71, averageTimeSeconds: 130, lane: 1,    isActive: true  },
         { id: 17, firstName: 'Martin',    lastName: 'Koch',        age: 32, gender: 'm', lanes: 35, averageTimeSeconds: 107, lane: 4,    isActive: true  },
         { id: 18, firstName: 'Sabine',    lastName: 'Klein',       age: 26, gender: 'f', lanes: 12, averageTimeSeconds:  86, lane: 3,    isActive: false },

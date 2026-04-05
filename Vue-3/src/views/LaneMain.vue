@@ -54,8 +54,9 @@
 
   <v-main style="padding-top: 0 !important;">
     <v-container fluid class="pa-2">
-      <v-row>
-        <v-col cols="12" lg="8">
+      <div class="lane-layout">
+        <!-- Linke Spalte: Aktive + Ausgeblendet -->
+        <div class="lane-left">
           <active-swimmer
               v-for="swimmer in activeSwimmers"
               :key="'activeSwimmer' + swimmer.id"
@@ -63,23 +64,59 @@
               @editActiveSwimmer="editActiveSwimmer"
               @activeSwimmerClicked="rearrangeSwimmer"
           ></active-swimmer>
-          <minimized-swimmer
-              v-for="swimmer in minimizedSwimmers"
-              :key="'minimizedSwimmer' + swimmer.id"
-              :swimmer="swimmer"
-              @showActiveSwimmer="showActiveSwimmer"
-          ></minimized-swimmer>
-        </v-col>
-        <v-col cols="12" lg="4" class="pb-4">
-          <inactive-swimmer
-              v-for="swimmer in inactiveSwimmers"
-              :key="'inactiveSwimmer' + swimmer.id"
-              :swimmer="swimmer"
-              :hide-info-default="true"
-              @inactiveSwimmerClicked="inactiveSwimmerClicked"
-          ></inactive-swimmer>
-        </v-col>
-      </v-row>
+
+          <div v-if="minimizedSwimmers.length > 0"
+               class="section-heading mt-2"
+               @click="minimizedCollapsed = !minimizedCollapsed">
+            <span>Ausgeblendet ({{ minimizedSwimmers.length }})</span>
+            <v-icon size="20">{{ minimizedCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
+          </div>
+          <v-expand-transition>
+            <div v-show="!minimizedCollapsed">
+              <minimized-swimmer
+                  v-for="swimmer in minimizedSwimmers"
+                  :key="'minimizedSwimmer' + swimmer.id"
+                  :swimmer="swimmer"
+                  @showActiveSwimmer="showActiveSwimmer"
+              ></minimized-swimmer>
+            </div>
+          </v-expand-transition>
+        </div>
+
+        <!-- Rechte Spalte: Wartend -->
+        <div class="lane-right">
+          <div v-if="inactiveSwimmers.length > 0"
+               class="section-heading"
+               @click="inactiveCollapsed = !inactiveCollapsed">
+            <span>Wartend ({{ inactiveSwimmers.length }})</span>
+            <v-icon size="20">{{ inactiveCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
+          </div>
+          <!-- Mobil: vertikales Einklappen -->
+          <v-expand-transition>
+            <div v-show="!inactiveCollapsed" class="d-lg-none">
+              <inactive-swimmer
+                  v-for="swimmer in inactiveSwimmers"
+                  :key="'inactiveSwimmerMobile' + swimmer.id"
+                  :swimmer="swimmer"
+                  :hide-info-default="true"
+                  @inactiveSwimmerClicked="inactiveSwimmerClicked"
+              ></inactive-swimmer>
+            </div>
+          </v-expand-transition>
+          <!-- PC: horizontales Einschieben -->
+          <transition name="slide-right">
+            <div v-show="!inactiveCollapsed" class="d-none d-lg-block">
+              <inactive-swimmer
+                  v-for="swimmer in inactiveSwimmers"
+                  :key="'inactiveSwimmerDesktop' + swimmer.id"
+                  :swimmer="swimmer"
+                  :hide-info-default="true"
+                  @inactiveSwimmerClicked="inactiveSwimmerClicked"
+              ></inactive-swimmer>
+            </div>
+          </transition>
+        </div>
+      </div>
     </v-container>
   </v-main>
 
@@ -129,6 +166,8 @@ export default {
     return {
       laneId: null,
       drawer: false,
+      inactiveCollapsed: false,
+      minimizedCollapsed: false,
       showEditSwimmerModal: false,
       showMessageModal: false,
       swimmers: [
@@ -202,14 +241,14 @@ export default {
           id: 4,
           isActive: false,
           swimmerName: {
-            first: "Anna",
+            first: "Alex",
             last: "Schmidt"
           },
           age: 22,
           swimDistance: 5000,
           team: "Team A",
           family: "",
-          gender: "female",
+          gender: "diverse",
           characteristics: {
             swimwearType: "swimsuit",
             swimwearColor: "blue",
@@ -252,7 +291,7 @@ export default {
             last: "Fischer"
           },
           age: 8,
-          swimDistance: 150,
+          swimDistance: 2000,
           team: "",
           family: "Millers",
           gender: "female",
@@ -301,6 +340,11 @@ export default {
     },
     addSwimmerToActiveList(swimmer) {
       swimmer.isActive = true;
+      const index = this.swimmers.findIndex(s => s.id === swimmer.id);
+      if (index !== -1) {
+        this.swimmers.splice(index, 1);
+        this.swimmers.push(swimmer);
+      }
     },
     removeSwimmerFromLane(swimmer) {
       this.swimmers = this.swimmers.filter(s => s.id !== swimmer.id);
@@ -341,6 +385,66 @@ export default {
 </script>
 
 <style scoped>
+.lane-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lane-left {
+  width: 100%;
+  min-width: 0;
+}
+
+.lane-right {
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+@media (min-width: 1280px) {
+  .lane-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .lane-left {
+    flex: 1;
+  }
+  .lane-right {
+    width: 33.333%;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #013157;
+  padding: 6px 8px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 6px;
+}
+
+.section-heading:hover {
+  background-color: rgba(1, 49, 87, 0.06);
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
 .active-lane-btn {
   font-weight: bold;
   opacity: 1 !important;

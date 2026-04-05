@@ -2,7 +2,7 @@
   <v-card class="minimized-swimmer">
     <div class="swimmer-row">
       <a class="swimmer-name">
-        {{ swimmer.id }} - {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }} ({{ swimmer.age }}J)
+        {{ swimmer.id }} - {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }} ({{ swimmer.age }}J, <gender-icon :gender="swimmer.gender" :size="16" />)
       </a>
       <v-btn
           icon="mdi-eye-off"
@@ -19,6 +19,7 @@
 <script>
 export default {
   name: "minimizedSwimmer",
+  components: { GenderIcon: () => import('../GenderIcon.vue') },
   props: {
     swimmer: {
       type: Object,
@@ -37,7 +38,6 @@ export default {
 .minimized-swimmer {
   user-select: none;
   background-color: #f0f0f0;
-  border: 3px solid gray;
   padding: 10px;
   margin: 5px;
   border-radius: 8px;

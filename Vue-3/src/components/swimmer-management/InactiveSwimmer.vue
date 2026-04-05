@@ -6,26 +6,12 @@
       @mouseleave="handleMouseLeave">
     <v-row class="pa-3">
     <a class="swimmer-name" :class="{ 'swimmer-name--truncate': !isInScope }">
-      {{ swimmer.id }} - {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }} ({{ swimmer.age }}J)
+      {{ swimmer.id }} - {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }} ({{ swimmer.age }}J, <gender-icon :gender="swimmer.gender" :size="16" />)
     </a>
     </v-row>
-    <div class="chip-row" v-if="!hideInfoDefault || isInScope">
-      <v-chip :color="swimmer.swimDistance > 1000 ? 'primary' : 'info'"
-              :class="{ 'font-italic': swimmer.swimDistance <= 1000 }"
-              size="default">
-        {{ formatDistance(swimmer.swimDistance) }}
-      </v-chip>
-      <v-chip color="primary" size="default">
-        {{ formatLaneCount(swimmer.swimDistance) }}
-      </v-chip>
-      <v-chip v-if="swimmer.team !== ''" color="primary" size="default">
-        <v-icon start icon="mdi-account-group" />
-        {{ swimmer.team }}
-      </v-chip>
-      <v-chip v-else-if="swimmer.family !== ''" color="primary" size="default">
-        <v-icon start>mdi-home</v-icon>
-        {{ swimmer.family }}
-      </v-chip>
+    <div v-if="!hideInfoDefault || isInScope" class="text-body-2 text-medium-emphasis mt-1">
+      <v-icon size="14">mdi-swim</v-icon>
+      {{ swimmer.swimDistance / 25 }} Bahnen / {{ formatDistance(swimmer.swimDistance) }}
     </div>
   </v-card>
 </template>
@@ -33,6 +19,7 @@
 <script>
 export default {
   name: "InactiveSwimmer",
+  components: { GenderIcon: () => import('../GenderIcon.vue') },
   props: {
     swimmer: {
       type: Object,
@@ -57,9 +44,6 @@ export default {
     formatDistance(distance) {
       return distance > 1000 ? `${(distance / 1000).toLocaleString('de-DE')} km` : `${distance.toLocaleString('de-DE')} m`;
     },
-    formatLaneCount(distance) {
-      return `${distance / 25} Bahnen`
-    },
     handleMouseHover() {
       this.isInScope = true;
     },
@@ -75,7 +59,6 @@ export default {
 .inactive-swimmer {
   user-select: none;
   background-color: #f0f0f0;
-  border: 3px solid gray;
   padding: 10px;
   margin: 5px;
   border-radius: 8px;
@@ -99,14 +82,4 @@ export default {
   text-overflow: ellipsis;
 }
 
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 4px 0 2px 0;
-}
-
-.font-italic {
-  font-style: italic;
-}
 </style>

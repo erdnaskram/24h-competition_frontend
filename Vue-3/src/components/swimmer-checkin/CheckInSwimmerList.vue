@@ -19,7 +19,7 @@
           <v-col>
             <div class="swimmer-name">
               {{ swimmer.id }} – {{ swimmer.firstName }} {{ swimmer.lastName }}
-              ({{ swimmer.age }}J, {{ swimmer.gender === 'm' ? '♂' : '♀' }})
+              ({{ swimmer.age }}J, <gender-icon :gender="swimmer.gender" :size="16" />)
             </div>
             <div class="text-body-2 text-medium-emphasis mt-1">
               <v-icon size="14">mdi-timer-outline</v-icon>
@@ -45,6 +45,7 @@
 <script>
 export default {
   name: 'CheckInSwimmerList',
+  components: { GenderIcon: () => import('../GenderIcon.vue') },
   props: {
     swimmers:             { type: Array,  required: true },
     betterLaneSuggestions: { type: Set,   default: () => new Set() },

@@ -9,39 +9,21 @@
           <a class="swimmer-name">
             {{ swimmer.id }} -
             {{ swimmer.swimmerName.first }} {{ swimmer.swimmerName.last }}
-            ({{ swimmer.age }})
+            ({{ swimmer.age }}J, <gender-icon :gender="swimmer.gender" :size="18" />)
           </a>
         </v-col>
       </v-row>
-      <v-row class="text-left">
-        <v-col class="swimmer-info">
-          <v-chip color="primary"
-                  size="x-large">
-            {{ formatDistance(swimmer.swimDistance) }}
-          </v-chip>
-        </v-col>
-        <v-col  class="swimmer-info">
-          <v-chip color="primary" size="x-large">
-            {{ formatLaneCount(swimmer.swimDistance) }}
-          </v-chip>
-        </v-col>
-        <v-col
-            v-if="swimmer.team !== ''"
-            class="swimmer-info">
-          <v-chip color="primary" size="x-large">
-            {{ swimmer.team }}
-            <v-icon class="ml-2" icon="mdi-account-group"></v-icon>
-          </v-chip>
-        </v-col>
-        <v-col
-            v-else-if="swimmer.family !== ''"
-            class="swimmer-info">
-          <v-chip color="primary" size="x-large">
-            {{ swimmer.family }}
-            <v-icon class="ml-2" >mdi-home</v-icon>
-          </v-chip>
-        </v-col>
-      </v-row>
+      <div class="text-body-1 font-weight-bold mt-1" style="color: #013157;">
+        <v-icon size="18">mdi-swim</v-icon>
+        {{ swimmer.swimDistance / 25 }} Bahnen / {{ formatDistance(swimmer.swimDistance) }}
+      </div>
+      <div v-if="swimmer.age <= 17 && swimmer.swimDistance >= 1" class="d-flex align-center gap-2 mt-2 mb-2">
+        <v-icon size="20" :color="getMedal(swimmer.swimDistance).color">mdi-medal</v-icon>
+        <span class="text-body-1 font-weight-bold" :style="{ color: getMedal(swimmer.swimDistance).color }">
+          {{ getMedal(swimmer.swimDistance).label }}
+        </span>
+        <span class="text-body-2 text-medium-emphasis ml-3">{{ getMedal(swimmer.swimDistance).range }}</span>
+      </div>
       </v-card-text>
 
       <v-card-actions class="d-flex flex-wrap">
@@ -69,6 +51,7 @@
 <script>
 export default {
   name: "EditInactiveSwimmerModal",
+  components: { GenderIcon: () => import('../GenderIcon.vue') },
   props: {
   },
   data() {
@@ -94,8 +77,10 @@ export default {
     formatDistance(distance) {
       return distance > 1000 ? `${(distance / 1000).toLocaleString('de-DE')} km` : `${distance.toLocaleString('de-DE')} m`;
     },
-    formatLaneCount(distance) {
-      return `${distance / 25} Bahnen`
+    getMedal(distance) {
+      if (distance >= 5001) return { label: 'Gold',   color: '#F9A825', range: 'ab 5.001 m' };
+      if (distance >= 2001) return { label: 'Silber', color: '#9E9E9E', range: '2.001 – 5.000 m' };
+      return                       { label: 'Bronze', color: '#A1632A', range: '1 – 2.000 m' };
     },
     startSwimming() {
       this.$emit('startSwimming', this.swimmer);
@@ -116,10 +101,5 @@ export default {
   font-weight: bold;
   color: #013157;
   text-decoration: none;
-}
-
-.swimmer-info {
-  padding-left: 4px;
-  padding-right: 4px;
 }
 </style>
