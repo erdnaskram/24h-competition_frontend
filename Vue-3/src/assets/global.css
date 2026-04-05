@@ -1,4 +1,12 @@
 /* src/assets/global.css */
+html.text-size-120 {
+    font-size: 120%;
+}
+
+html.text-size-150 {
+    font-size: 150%;
+}
+
 body, html {
     overflow-x: hidden;
     max-width: 100%;

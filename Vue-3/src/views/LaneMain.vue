@@ -23,6 +23,13 @@
           :class="{ 'drawer-item-active': lane.id === laneId }"
           @click="drawer = false"
       ></v-list-item>
+      <v-divider class="my-2" color="rgba(255,255,255,0.2)" />
+      <v-list-item
+          :title="'Schriftgröße: ' + textSizeLabel"
+          prepend-icon="mdi-format-size"
+          class="drawer-item"
+          @click="cycleTextSize"
+      ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 
@@ -43,6 +50,15 @@
     >
       <v-icon v-if="lane.id === laneId" start>mdi-swim</v-icon>
       {{ lane.name }}
+    </v-btn>
+    <!-- Schriftgröße-Toggle -->
+    <v-btn
+        variant="text"
+        color="white"
+        title="Schriftgröße wechseln"
+        @click="cycleTextSize"
+    >
+      <v-icon start>mdi-format-size</v-icon>{{ textSizeLabel }}
     </v-btn>
     <!-- Mobile/Tablet: Hamburger-Menü -->
     <v-app-bar-nav-icon
@@ -145,6 +161,7 @@
 
 <script>
 import {useLaneStore} from '../store';
+import {useTextSize} from '../composables/useTextSize.js';
 import InactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
 import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
@@ -312,7 +329,8 @@ export default {
   },
   setup() {
     const laneStore = useLaneStore();
-    return {laneStore};
+    const { textSizeLabel, cycleTextSize } = useTextSize();
+    return {laneStore, textSizeLabel, cycleTextSize};
   },
   mounted() {
     this.laneId = Number.parseInt(this.$route.params.id);

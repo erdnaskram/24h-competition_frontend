@@ -6,7 +6,7 @@
 
     <!-- Desktop-Navigation -->
     <template v-slot:append>
-      <div class="d-none d-md-flex align-center ga-1 mr-2">
+      <div class="d-none d-md-flex align-center ga-1">
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" variant="text" color="white" append-icon="mdi-chevron-down">
@@ -31,6 +31,16 @@
 
         <v-btn variant="text" color="white" to="/results">Ergebnisse</v-btn>
         <v-btn variant="text" color="white" to="/checkin">Check-In</v-btn>
+
+        <v-btn
+          variant="text"
+          color="white"
+          class="ml-2"
+          title="Schriftgröße wechseln"
+          @click="cycleTextSize"
+        >
+          <v-icon start>mdi-format-size</v-icon>{{ textSizeLabel }}
+        </v-btn>
       </div>
 
       <!-- Hamburger für Mobile/Tablet -->
@@ -77,18 +87,27 @@
         class="drawer-item"
         @click="drawer = false"
       />
+      <v-divider class="my-2" color="rgba(255,255,255,0.2)" />
+      <v-list-item
+        :title="'Schriftgröße: ' + textSizeLabel"
+        prepend-icon="mdi-format-size"
+        class="drawer-item"
+        @click="cycleTextSize"
+      />
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
 import { useLaneStore } from "../../store/index.js";
+import { useTextSize } from "../../composables/useTextSize.js";
 
 export default {
   name: "TheHeader",
   setup() {
     const laneStore = useLaneStore();
-    return { laneStore };
+    const { textSizeLabel, cycleTextSize } = useTextSize();
+    return { laneStore, textSizeLabel, cycleTextSize };
   },
   data() {
     return {
