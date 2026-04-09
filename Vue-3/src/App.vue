@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :style="{ backgroundImage: `url(${isDark ? darkBg : lightBg})` }">
     <the-header v-if="showHeader" :lane-count="laneCount"></the-header>
     <div>
       <div class="header-placeholder"></div>
@@ -13,13 +13,17 @@
 <script>
 import TheHeader from "./components/UI/TheHeader.vue";
 import {useRoute} from 'vue-router';
+import {useDarkMode} from './composables/useDarkMode.js';
+import lightBg from './assets/Background.png';
+import darkBg from './assets/Background_Darkmode.png';
 
 export default {
   name: 'App',
   components: {TheHeader},
   setup() {
     const route = useRoute();
-    return {route};
+    const {isDark} = useDarkMode();
+    return {route, isDark, lightBg, darkBg};
   },
   data() {
     return {
@@ -44,10 +48,9 @@ export default {
   height: 48px;
 }
 .v-application {
-  background-image: url('assets/Background.png'); /* Pfad zu Ihrem Hintergrundbild */
-  background-size: cover; /* Bildgröße an den Bildschirm anpassen */
-  background-position: center; /* Bild zentrieren */
-  background-repeat: no-repeat; /* Bild nicht wiederholen */
-  background-attachment: fixed; /* Hintergrundbild fixieren */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 </style>

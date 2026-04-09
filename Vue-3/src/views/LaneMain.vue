@@ -30,6 +30,12 @@
           class="drawer-item"
           @click="cycleTextSize"
       ></v-list-item>
+      <v-list-item
+          :title="isDark ? 'Hell-Modus' : 'Dunkel-Modus'"
+          :prepend-icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          class="drawer-item"
+          @click="toggleDarkMode"
+      ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 
@@ -59,6 +65,16 @@
         @click="cycleTextSize"
     >
       <v-icon start>mdi-format-size</v-icon>{{ textSizeLabel }}
+    </v-btn>
+    <!-- Dark Mode Toggle -->
+    <v-btn
+        icon
+        variant="text"
+        color="white"
+        :title="isDark ? 'Hell-Modus' : 'Dunkel-Modus'"
+        @click="toggleDarkMode"
+    >
+      <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
     </v-btn>
     <!-- Mobile/Tablet: Hamburger-Menü -->
     <v-app-bar-nav-icon
@@ -120,17 +136,19 @@
             </div>
           </v-expand-transition>
           <!-- PC: horizontales Einschieben -->
-          <transition name="slide-right">
-            <div v-show="!inactiveCollapsed" class="d-none d-lg-block">
-              <inactive-swimmer
-                  v-for="swimmer in inactiveSwimmers"
-                  :key="'inactiveSwimmerDesktop' + swimmer.id"
-                  :swimmer="swimmer"
-                  :hide-info-default="true"
-                  @inactiveSwimmerClicked="inactiveSwimmerClicked"
-              ></inactive-swimmer>
-            </div>
-          </transition>
+          <div class="d-none d-lg-block">
+            <transition name="slide-right">
+              <div v-show="!inactiveCollapsed">
+                <inactive-swimmer
+                    v-for="swimmer in inactiveSwimmers"
+                    :key="'inactiveSwimmerDesktop' + swimmer.id"
+                    :swimmer="swimmer"
+                    :hide-info-default="true"
+                    @inactiveSwimmerClicked="inactiveSwimmerClicked"
+                ></inactive-swimmer>
+              </div>
+            </transition>
+          </div>
         </div>
       </div>
     </v-container>
@@ -162,6 +180,7 @@
 <script>
 import {useLaneStore} from '../store';
 import {useTextSize} from '../composables/useTextSize.js';
+import {useDarkMode} from '../composables/useDarkMode.js';
 import InactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
 import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
@@ -330,7 +349,8 @@ export default {
   setup() {
     const laneStore = useLaneStore();
     const { textSizeLabel, cycleTextSize } = useTextSize();
-    return {laneStore, textSizeLabel, cycleTextSize};
+    const { isDark, toggleDarkMode } = useDarkMode();
+    return {laneStore, textSizeLabel, cycleTextSize, isDark, toggleDarkMode};
   },
   mounted() {
     this.laneId = Number.parseInt(this.$route.params.id);

@@ -41,6 +41,15 @@
         >
           <v-icon start>mdi-format-size</v-icon>{{ textSizeLabel }}
         </v-btn>
+        <v-btn
+          icon
+          variant="text"
+          color="white"
+          :title="isDark ? 'Hell-Modus' : 'Dunkel-Modus'"
+          @click="toggleDarkMode"
+        >
+          <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+        </v-btn>
       </div>
 
       <!-- Hamburger für Mobile/Tablet -->
@@ -94,6 +103,12 @@
         class="drawer-item"
         @click="cycleTextSize"
       />
+      <v-list-item
+        :title="isDark ? 'Hell-Modus' : 'Dunkel-Modus'"
+        :prepend-icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+        class="drawer-item"
+        @click="toggleDarkMode"
+      />
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -101,13 +116,15 @@
 <script>
 import { useLaneStore } from "../../store/index.js";
 import { useTextSize } from "../../composables/useTextSize.js";
+import { useDarkMode } from "../../composables/useDarkMode.js";
 
 export default {
   name: "TheHeader",
   setup() {
     const laneStore = useLaneStore();
     const { textSizeLabel, cycleTextSize } = useTextSize();
-    return { laneStore, textSizeLabel, cycleTextSize };
+    const { isDark, toggleDarkMode } = useDarkMode();
+    return { laneStore, textSizeLabel, cycleTextSize, isDark, toggleDarkMode };
   },
   data() {
     return {

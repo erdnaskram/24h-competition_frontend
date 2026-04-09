@@ -3,8 +3,8 @@
             max-width="1000"
             :fullscreen="isSmallScreen"
             persistent>
-    <v-card title="Berabeiten" :class="isSmallScreen ? 'd-flex flex-column' : ''" style="max-height: 100%;">
-      <v-card-text :style="isSmallScreen ? 'overflow-y: auto; flex: 1 1 0; min-height: 0;' : ''">
+    <v-card title="Berabeiten" :class="['edit-characteristics-card', isSmallScreen ? 'd-flex flex-column' : '']" style="max-height: 100%;">
+      <v-card-text :style="isSmallScreen ? 'overflow-y: auto; flex: 1 1 0; min-height: 0;' : 'overflow-y: auto;'">
         <v-row>
           <v-col
               class="py-2"
@@ -172,6 +172,7 @@
         <v-btn
             text="Abbrechen"
             color="grey-darken-3"
+            style="color: white"
             @click="closeModal"
         ></v-btn>
       </v-card-actions>
@@ -214,6 +215,7 @@ export default {
       headphones: null,
 
 
+      windowWidth: window.innerWidth,
       showModal: false,
       localSwimmer: null,
       startSwimmingAfter: false,
@@ -319,7 +321,13 @@ export default {
       ]
     };
   },
-  beforeDestroy() {
+  mounted() {
+    this.windowWidth = window.innerWidth;
+    this._onResize = () => { this.windowWidth = window.innerWidth; };
+    window.addEventListener('resize', this._onResize);
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this._onResize);
   },
   methods: {
     openModal(swimmer, startSwimmingAfter) {
@@ -341,7 +349,7 @@ export default {
   },
   computed: {
     isSmallScreen() {
-      return window.innerWidth < 600;
+      return this.windowWidth < 960;
     },
     half() {
       return Math.ceil(this.colorMap.length / 2);
@@ -397,8 +405,10 @@ export default {
   transform: translateY(-2px);
 }
 
-/* falls du willst, dass die Buttons die Spalten ausfüllen */
-.btn-toggle-grid .v-btn {
-  width: 100%;
+/* Einreihige Darstellung auf PC/Tablet */
+.btn-toggle-wrap {
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  max-width: 100%;
 }
 </style>

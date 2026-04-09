@@ -7,12 +7,59 @@ html.text-size-150 {
     font-size: 150%;
 }
 
+/* ── Dark Mode Overrides ── */
+.v-theme--dark .active-swimmer,
+.v-theme--dark .inactive-swimmer,
+.v-theme--dark .minimized-swimmer {
+    background-color: #1e2a38 !important;
+}
+
+.v-theme--dark .swimmer-name {
+    color: #90caf9 !important;
+}
+
+.v-theme--dark .swimmer-characteristics {
+    background-color: #6a7f91 !important;
+}
+
+.v-theme--dark .swimmer-characteristics-notes {
+    background-color: #2c3a48 !important;
+    color: #cfd8dc !important;
+}
+
+.v-theme--dark .section-heading {
+    color: #90caf9 !important;
+}
+
+.v-theme--dark .section-heading:hover {
+    background-color: rgba(144, 202, 249, 0.08) !important;
+}
+
+.v-theme--dark .lane-select-heading {
+    color: #90caf9 !important;
+}
+
+.v-theme--dark .medal-overlay {
+    background: rgba(18, 28, 38, 0.92) !important;
+}
+
+/* ── Edit Characteristics Modal ── */
+.v-theme--dark .edit-characteristics-card {
+    background-color: #1e2a38 !important;
+}
+
+.v-theme--dark .edit-characteristics-card .v-btn-toggle .v-btn {
+    background-color: #6a7f91 !important;
+}
+
+.v-theme--dark .edit-characteristics-card .v-btn-toggle .v-btn--active {
+    background-color: #90caf9 !important;
+    outline: 2px solid #90caf9;
+    outline-offset: -2px;
+}
+
+
 body, html {
     overflow-x: hidden;
     max-width: 100%;
-    background-image: url('Background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
 }

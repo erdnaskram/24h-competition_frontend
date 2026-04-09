@@ -2,7 +2,7 @@
   <v-container class="py-6">
     <v-row justify="center">
       <v-col cols="12" class="text-center">
-        <h1>Hallo, wähle deine Bahn</h1>
+        <h1 class="lane-select-heading">Hallo, wähle deine Bahn</h1>
       </v-col>
     </v-row>
     <v-row justify="center">
@@ -37,4 +37,5 @@ h1 {
   font-size: clamp(1.4rem, 4vw, 2.2rem);
   font-weight: bold;
 }
+
 </style>
