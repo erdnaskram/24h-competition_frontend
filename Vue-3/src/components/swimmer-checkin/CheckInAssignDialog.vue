@@ -10,7 +10,7 @@
         <div v-if="selectedSwimmer">
           {{ selectedSwimmer.firstName }} {{ selectedSwimmer.lastName }}
         </div>
-        <div v-if="selectedSwimmer" class="text-caption font-weight-regular text-medium-emphasis">
+        <div v-if="selectedSwimmer" class="assignment-swimmer-characteristics text-caption font-weight-regular text-medium-emphasis">
           Ø {{ formatTime(selectedSwimmer.averageTimeSeconds) }} &nbsp;·&nbsp;
           {{ selectedSwimmer.lanes }} Bahnen
         </div>
@@ -124,6 +124,11 @@ export default {
 
 <style scoped>
 .white-text { color: white !important; }
+
+.assignment-swimmer-characteristics {
+  font-weight: bold !important;
+  font-size: 0.85rem !important;
+}
 
 .recommended-btn {
   box-shadow: 0 0 0 3px rgba(0,0,0,0.18), 0 4px 14px rgba(0,0,0,0.22) !important;

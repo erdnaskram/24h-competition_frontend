@@ -100,7 +100,7 @@
         </div>
 
         <!-- Rechte Spalte: Wartend -->
-        <div class="lane-right">
+        <div class="lane-right" :class="{ 'lane-right--collapsed': inactiveCollapsed }">
           <div v-if="inactiveSwimmers.length > 0"
                class="section-heading"
                @click="inactiveCollapsed = !inactiveCollapsed">
@@ -419,18 +419,34 @@ export default {
   padding-bottom: 16px;
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1025px) {
   .lane-layout {
     flex-direction: row;
     align-items: flex-start;
   }
   .lane-left {
     flex: 1;
+    min-width: 0;
   }
   .lane-right {
     width: 33.333%;
     flex-shrink: 0;
     overflow: hidden;
+    transition: width 0.3s ease;
+  }
+  .lane-right--collapsed {
+    width: 44px;
+  }
+  .lane-right--collapsed .section-heading {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    padding: 12px 6px;
+    justify-content: center;
+    height: auto;
+    width: 44px;
+  }
+  .lane-right--collapsed .section-heading :deep(.v-icon) {
+    display: none;
   }
 }
 
