@@ -107,12 +107,15 @@ import CheckInLanePanel from "../components/swimmer-checkin/CheckInLanePanel.vue
 import CheckInSearchBar from "../components/swimmer-checkin/CheckInSearchBar.vue";
 import CheckInMobileLaneStrip from "../components/swimmer-checkin/CheckInMobileLaneStrip.vue";
 import CheckInSwimmerList from "../components/swimmer-checkin/CheckInSwimmerList.vue";
+import { useLaneStore, useSwimmerStore } from '../store/index.js';
+import { participantService } from '../services/participantService.js';
 
 export default {
   name: 'CheckIn',
-  components: {CheckInSwimmerList, CheckInMobileLaneStrip, CheckInSearchBar, CheckInLanePanel, CheckInAssignDialog},
+  components: { CheckInSwimmerList, CheckInMobileLaneStrip, CheckInSearchBar, CheckInLanePanel, CheckInAssignDialog },
   data() {
     return {
+      swimmers: [],             // Suchergebnisse vom Backend
       searchQuery: '',
       showLaneDialog: false,
       showColorLimitsMobile: false,
@@ -133,80 +136,40 @@ export default {
         { key: 'averageTimeSeconds', label: 'Geschwindigkeit' },
         { key: 'distance',           label: 'Strecke' },
       ],
-
       alphabet: ['A','B','C','D','E','F','G','H','I','J','K','L','M',
                  'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
                  'Ä','Ö','Ü'],
-
-      lanes: [
-        { id: 1, averageTimeSeconds: 108 },
-        { id: 2, averageTimeSeconds: 92  },
-        { id: 3, averageTimeSeconds: 85  },
-        { id: 4, averageTimeSeconds: 101 },
-        { id: 5, averageTimeSeconds: 97  },
-      ],
-
-      swimmers: [
-        { id:  1, firstName: 'Anna',      lastName: 'Müller',      age: 28, gender: 'f', lanes: 14, averageTimeSeconds:  95, lane: 2,    isActive: true  },
-        { id:  2, firstName: 'Max',       lastName: 'Mustermann',  age: 35, gender: 'm', lanes: 28, averageTimeSeconds: 110, lane: null, isActive: false },
-        { id:  3, firstName: 'Lisa',      lastName: 'Schmidt',     age: 22, gender: 'f', lanes:  6, averageTimeSeconds:  88, lane: 3,    isActive: false },
-        { id:  4, firstName: 'Thomas',    lastName: 'Bauer',       age: 40, gender: 'm', lanes: 42, averageTimeSeconds: 102, lane: 4,    isActive: true  },
-        { id:  5, firstName: 'Sandra',    lastName: 'Hoffmann',    age: 31, gender: 'f', lanes: 19, averageTimeSeconds:  91, lane: null, isActive: false },
-        { id:  6, firstName: 'Klaus',     lastName: 'Fischer',     age: 47, gender: 'm', lanes: 55, averageTimeSeconds: 118, lane: 1,    isActive: true  },
-        { id:  7, firstName: 'Julia',     lastName: 'Weber',       age: 25, gender: 'f', lanes:  8, averageTimeSeconds:  84, lane: 3,    isActive: false },
-        { id:  8, firstName: 'Peter',     lastName: 'Wagner',      age: 52, gender: 'm', lanes: 67, averageTimeSeconds: 125, lane: 1,    isActive: true  },
-        { id:  9, firstName: 'Sarah',     lastName: 'Schulz',      age: 19, gender: 'f', lanes:  3, averageTimeSeconds:  79, lane: null, isActive: false },
-        { id: 10, firstName: 'Lena',      lastName: 'Maier',       age: 20, gender: 'f', lanes:  0, averageTimeSeconds: null, lane: null, isActive: false },
-        { id: 11, firstName: 'Michael',   lastName: 'Zimmermann',  age: 38, gender: 'm', lanes: 33, averageTimeSeconds: 105, lane: 4,    isActive: false },
-        { id: 12, firstName: 'Franziska', lastName: 'Becker',      age: 27, gender: 'f', lanes: 11, averageTimeSeconds:  93, lane: 2,    isActive: false },
-        { id: 13, firstName: 'Stefan',    lastName: 'Krause',      age: 44, gender: 'm', lanes: 48, averageTimeSeconds: 113, lane: 1,    isActive: true  },
-        { id: 14, firstName: 'Nicole',    lastName: 'Schäfer',     age: 33, gender: 'f', lanes: 22, averageTimeSeconds:  89, lane: null, isActive: false },
-        { id: 15, firstName: 'Kim',        lastName: 'Richter',     age: 29, gender: 'd', lanes: 17, averageTimeSeconds:  99, lane: 5,    isActive: false },
-        { id: 16, firstName: 'Petra',     lastName: 'Weiß',        age: 55, gender: 'f', lanes: 71, averageTimeSeconds: 130, lane: 1,    isActive: true  },
-        { id: 17, firstName: 'Martin',    lastName: 'Koch',        age: 32, gender: 'm', lanes: 35, averageTimeSeconds: 107, lane: 4,    isActive: true  },
-        { id: 18, firstName: 'Sabine',    lastName: 'Klein',       age: 26, gender: 'f', lanes: 12, averageTimeSeconds:  86, lane: 3,    isActive: false },
-        { id: 19, firstName: 'Jürgen',    lastName: 'Wolf',        age: 48, gender: 'm', lanes: 59, averageTimeSeconds: 121, lane: null, isActive: false },
-        { id: 20, firstName: 'Jonas',     lastName: 'Huber',       age: 17, gender: 'm', lanes:  0, averageTimeSeconds: null, lane: null, isActive: false },
-        { id: 21, firstName: 'Monika',    lastName: 'Braun',       age: 41, gender: 'f', lanes: 26, averageTimeSeconds:  97, lane: 5,    isActive: true  },
-        { id: 22, firstName: 'Tobias',    lastName: 'Lange',       age: 23, gender: 'm', lanes:  9, averageTimeSeconds:  82, lane: 3,    isActive: false },
-        { id: 23, firstName: 'Karin',     lastName: 'Schulze',     age: 36, gender: 'f', lanes: 31, averageTimeSeconds:  94, lane: 2,    isActive: true  },
-        { id: 24, firstName: 'Ralf',      lastName: 'Meier',       age: 51, gender: 'm', lanes: 61, averageTimeSeconds: 116, lane: 1,    isActive: false },
-        { id: 25, firstName: 'Anja',      lastName: 'Krüger',      age: 30, gender: 'f', lanes: 18, averageTimeSeconds:  90, lane: null, isActive: false },
-        { id: 26, firstName: 'Frank',     lastName: 'Lehmann',     age: 45, gender: 'm', lanes: 44, averageTimeSeconds: 111, lane: 4,    isActive: true  },
-        { id: 27, firstName: 'Heike',     lastName: 'Schmitt',     age: 39, gender: 'f', lanes: 37, averageTimeSeconds:  98, lane: 5,    isActive: true  },
-        { id: 28, firstName: 'Uwe',       lastName: 'Günther',     age: 57, gender: 'm', lanes: 73, averageTimeSeconds: 128, lane: null, isActive: false },
-        { id: 29, firstName: 'Claudia',   lastName: 'Hartmann',    age: 34, gender: 'f', lanes: 24, averageTimeSeconds:  92, lane: 2,    isActive: false },
-        { id: 30, firstName: 'Bernd',     lastName: 'Sommer',      age: 42, gender: 'm', lanes: 46, averageTimeSeconds: 103, lane: 4,    isActive: false },
-        { id: 31, firstName: 'Birgit',    lastName: 'Franke',      age: 29, gender: 'f', lanes: 16, averageTimeSeconds:  87, lane: 3,    isActive: true  },
-        { id: 32, firstName: 'Emma',      lastName: 'Neumann',     age: 25, gender: 'f', lanes:  0, averageTimeSeconds: null, lane: 3,    isActive: false },
-        { id: 33, firstName: 'Holger',    lastName: 'Pohl',        age: 37, gender: 'm', lanes: 39, averageTimeSeconds: 100, lane: 5,    isActive: false },
-        { id: 34, firstName: 'Silvia',    lastName: 'Vogt',        age: 24, gender: 'f', lanes:  7, averageTimeSeconds:  83, lane: null, isActive: false },
-        { id: 35, firstName: 'Dirk',      lastName: 'Roth',        age: 50, gender: 'm', lanes: 64, averageTimeSeconds: 119, lane: 1,    isActive: true  },
-        { id: 36, firstName: 'Susanne',   lastName: 'Beck',        age: 32, gender: 'f', lanes: 20, averageTimeSeconds:  96, lane: 5,    isActive: false },
-        { id: 37, firstName: 'Günter',    lastName: 'Werner',      age: 60, gender: 'm', lanes: 78, averageTimeSeconds: 132, lane: null, isActive: false },
-        { id: 38, firstName: 'Melanie',   lastName: 'Böhm',        age: 27, gender: 'f', lanes: 13, averageTimeSeconds:  88, lane: 2,    isActive: true  },
-        { id: 39, firstName: 'Patrick',   lastName: 'Brandt',      age: 21, gender: 'm', lanes:  5, averageTimeSeconds:  78, lane: null, isActive: false },
-        { id: 40, firstName: 'Renate',    lastName: 'Seifert',     age: 46, gender: 'f', lanes: 52, averageTimeSeconds: 112, lane: null, isActive: false },
-        { id: 41, firstName: 'Felix',     lastName: 'Kaufmann',    age: 31, gender: 'm', lanes:  0, averageTimeSeconds: null, lane: null, isActive: false },
-        { id: 42, firstName: 'Norbert',   lastName: 'Engel',       age: 53, gender: 'm', lanes: 68, averageTimeSeconds: 123, lane: 1,    isActive: false },
-        { id: 43, firstName: 'Christine', lastName: 'Pfeiffer',    age: 38, gender: 'f', lanes: 29, averageTimeSeconds:  93, lane: 2,    isActive: true  },
-        { id: 44, firstName: 'Stephan',   lastName: 'Ziegler',     age: 43, gender: 'm', lanes: 41, averageTimeSeconds: 104, lane: 4,    isActive: false },
-      ],
     };
   },
+  setup() {
+    const laneStore    = useLaneStore();
+    const swimmerStore = useSwimmerStore();
+    return { laneStore, swimmerStore };
+  },
+  async mounted() {
+    await participantService.registerCheckin();
+    this.swimmers = await participantService.searchAsYouType('');
+  },
+  watch: {
+    async searchQuery(val) {
+      this.swimmers = await participantService.searchAsYouType(val);
+    },
+  },
   computed: {
+    // Bahnen aus dem Store + Auslastung aus den SignalR-Events (laneInfos)
     lanesWithCounts() {
-      return this.lanes.map(lane => {
-        const onLane = this.swimmers.filter(s => s.lane === lane.id);
-        const participants = onLane.length;
-        const activeParticipants = onLane.filter(s => s.isActive).length;
-        const averageTimeSeconds = participants > 0
-            ? Math.round(onLane.reduce((sum, s) => sum + s.averageTimeSeconds, 0) / participants)
-            : null;
-        return { ...lane, participants, activeParticipants, averageTimeSeconds };
+      return this.laneStore.lanes.map(lane => {
+        const info = this.swimmerStore.laneInfos[lane.id] ?? { participants: 0, averageTimeSeconds: null };
+        return {
+          ...lane,
+          participants:       info.participants       ?? 0,
+          activeParticipants: info.participants       ?? 0,   // Backend liefert keinen separaten Active-Count
+          averageTimeSeconds: info.averageTimeSeconds ?? null,
+        };
       });
     },
 
+    // Lane- und Statusfilter + Sortierung — Textsuche macht das Backend
     filteredSwimmers() {
       let list = this.swimmers;
 
@@ -223,20 +186,14 @@ export default {
         );
       }
 
-      if (this.searchQuery && this.searchQuery.trim()) {
-        const q = this.searchQuery.trim().toLowerCase();
-        list = list.filter(s =>
-            s.firstName.toLowerCase().includes(q) ||
-            s.lastName.toLowerCase().includes(q) ||
-            String(s.id).includes(q)
-        );
-      }
-
       const key = this.sortBy;
       const dir = this.sortAsc ? 1 : -1;
       return [...list].sort((a, b) => {
-        const aVal = key === 'distance' ? a.lanes * 25 : a[key];
-        const bVal = key === 'distance' ? b.lanes * 25 : b[key];
+        const aVal = key === 'distance' ? (a.lanes ?? 0) * 25 : (a[key] ?? null);
+        const bVal = key === 'distance' ? (b.lanes ?? 0) * 25 : (b[key] ?? null);
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1 * dir;
+        if (bVal == null) return -1 * dir;
         if (typeof aVal === 'string') return aVal.localeCompare(bVal) * dir;
         return (aVal - bVal) * dir;
       });
@@ -252,9 +209,9 @@ export default {
       return ids;
     },
 
+    // Gesamtdistanz kommt als Bahnen-Summe vom Backend via updateTotalLanes
     totalDistanceFormatted() {
-      const totalLanes = this.swimmers.reduce((sum, s) => sum + s.lanes, 0);
-      const meters = totalLanes * 25;
+      const meters = this.swimmerStore.totalLanes * 25;
       return meters >= 1000
           ? (meters / 1000).toLocaleString('de-DE', { maximumFractionDigits: 2 }) + ' km'
           : meters.toLocaleString('de-DE') + ' m';
@@ -279,48 +236,58 @@ export default {
       const availableLanes = this.lanesWithCounts.filter(l => l.participants < this.laneColourRed);
       if (!availableLanes.length) return null;
 
-      const swimmerSpeed = swimmer.averageTimeSeconds;
-      const maxSpeedDiff = Math.max(
-          ...availableLanes.map(l => Math.abs((l.averageTimeSeconds || swimmerSpeed) - swimmerSpeed))
-      ) || 1;
-      const maxParticipants      = Math.max(...availableLanes.map(l => l.participants))       || 1;
-      const maxActiveParticipants = Math.max(...availableLanes.map(l => l.activeParticipants)) || 1;
+      const swimmerSpeed  = swimmer.averageTimeSeconds;
+      const maxSpeedDiff  = Math.max(...availableLanes.map(l => Math.abs((l.averageTimeSeconds || swimmerSpeed) - swimmerSpeed))) || 1;
+      const maxPart       = Math.max(...availableLanes.map(l => l.participants))       || 1;
+      const maxActivePart = Math.max(...availableLanes.map(l => l.activeParticipants)) || 1;
 
       let bestLane = null;
       let bestScore = Infinity;
-
       for (const lane of availableLanes) {
         const laneTime       = lane.averageTimeSeconds || swimmerSpeed;
         const speedScore     = Math.abs(laneTime - swimmerSpeed) / maxSpeedDiff;
-        const occupancyScore = lane.participants / maxParticipants;
-        const activeScore    = lane.activeParticipants / maxActiveParticipants;
+        const occupancyScore = lane.participants / maxPart;
+        const activeScore    = lane.activeParticipants / maxActivePart;
         const score = speedScore * 0.55 + occupancyScore * 0.35 + activeScore * 0.10;
-        if (score < bestScore) {
-          bestScore = score;
-          bestLane = lane;
-        }
+        if (score < bestScore) { bestScore = score; bestLane = lane; }
       }
       return bestLane;
     },
 
-    assignLane(laneId) {
+    async assignLane(laneId) {
       if (this.selectedSwimmer) {
-        this.selectedSwimmer.lane = laneId;
+        await participantService.assignToLane(laneId, this.selectedSwimmer.id);
+        // Optimistisches Update der lokalen Suchergebnisse
+        this.selectedSwimmer.lane     = laneId;
         this.selectedSwimmer.isActive = false;
       }
-      this.showLaneDialog = false;
+      this.showLaneDialog  = false;
       this.selectedSwimmer = null;
       this.recommendedLane = null;
     },
 
-    removeFromLane() {
+    async removeFromLane() {
       if (this.selectedSwimmer) {
-        this.selectedSwimmer.lane = null;
+        const laneId     = this.selectedSwimmer.lane;
+        const swimmerId  = this.selectedSwimmer.id;
+        // Optimistisches lokales Update
+        this.selectedSwimmer.lane     = null;
         this.selectedSwimmer.isActive = false;
+        this.showLaneDialog  = false;
+        this.selectedSwimmer = null;
+        this.recommendedLane = null;
+        if (laneId != null) {
+          try {
+            await participantService.leaveLane(laneId, swimmerId);
+          } catch (e) {
+            console.warn('leaveLane fehlgeschlagen (ggf. vom Backend nicht unterstützt):', e.message);
+          }
+        }
+      } else {
+        this.showLaneDialog  = false;
+        this.selectedSwimmer = null;
+        this.recommendedLane = null;
       }
-      this.showLaneDialog = false;
-      this.selectedSwimmer = null;
-      this.recommendedLane = null;
     },
   },
 };

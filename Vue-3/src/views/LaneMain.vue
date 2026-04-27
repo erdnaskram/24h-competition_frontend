@@ -18,7 +18,7 @@
           :title="lane.name"
           :to="'/lane/' + lane.id"
           :active="lane.id === laneId"
-          active-color="white"
+          color="white"
           class="drawer-item"
           :class="{ 'drawer-item-active': lane.id === laneId }"
           @click="drawer = false"
@@ -160,8 +160,9 @@
 </template>
 
 <script>
-import {useLaneStore} from '../store';
-import {useTextSize} from '../composables/useTextSize.js';
+import { useLaneStore, useSwimmerStore } from '../store';
+import { useTextSize } from '../composables/useTextSize.js';
+import { participantService } from '../services/participantService.js';
 import InactiveSwimmer from "../components/swimmer-management/InactiveSwimmer.vue";
 import EditInactiveSwimmerModal from "../components/swimmer-management/EditInactiveSwimmerModal.vue";
 import ActiveSwimmer from "../components/swimmer-management/ActiveSwimmer.vue";
@@ -185,220 +186,73 @@ export default {
       drawer: false,
       inactiveCollapsed: false,
       minimizedCollapsed: false,
-      showEditSwimmerModal: false,
-      showMessageModal: false,
-      swimmers: [
-        {
-          id: 1,
-          isActive: false,
-          swimmerName: {
-            first: "Max Alfred Klaus",
-            last: "Mustermann"
-          },
-          age: 25,
-          swimDistance: 1050,
-          team: "Team A",
-          family: "",
-          gender: "male",
-          characteristics: {
-            swimwearType: "trunks",
-            swimwearColor: "green",
-            googles: "blue",
-            swimCap: "red",
-            hair: "brown",
-            tattoo: false,
-            headphones: false,
-            notes: ""
-          }
-        },
-        {
-          id: 2,
-          isActive: true,
-          swimmerName: {first: "Erika", last: "Musterfrau"},
-          age: 30,
-          swimDistance: 1500,
-          team: "",
-          family: "Millers and Friends",
-          gender: "female",
-          characteristics: {
-            swimwearType: "bikini",
-            swimwearColor: "red",
-            googles: "black",
-            swimCap: "black",
-            hair: "yellow",
-            tattoo: false,
-            headphones: true,
-            notes: "Prefers to swim in the evening."
-          }
-        },
-        {
-          id: 3,
-          isActive: false,
-          swimmerName: {
-            first: "Hans",
-            last: "Müller"
-          },
-          age: 28,
-          swimDistance: 20350,
-          team: "Team B",
-          family: "",
-          gender: "male",
-          characteristics: {
-            swimwearType: "trunks",
-            swimwearColor: "red",
-            googles: "black",
-            swimCap: "none",
-            hair: "black",
-            tattoo: true,
-            headphones: true,
-            notes: "Has a tattoo on his left arm."
-          }
-        },
-        {
-          id: 4,
-          isActive: false,
-          swimmerName: {
-            first: "Alex",
-            last: "Schmidt"
-          },
-          age: 22,
-          swimDistance: 5000,
-          team: "Team A",
-          family: "",
-          gender: "diverse",
-          characteristics: {
-            swimwearType: "swimsuit",
-            swimwearColor: "blue",
-            googles: "none",
-            swimCap: "yellow",
-            hair: "green",
-            tattoo: false,
-            headphones: false,
-            notes: "Prefers to swim in the morning."
-          }
-        },
-        {
-          id: 5,
-          isActive: false,
-          swimmerName: {
-            first: "Peter",
-            last: "Schneider"
-          },
-          age: 35,
-          swimDistance: 10000,
-          team: "",
-          family: "",
-          gender: "male",
-          characteristics: {
-            swimwearType: "short-pants",
-            swimwearColor: "blue",
-            googles: "green",
-            swimCap: "white",
-            hair: "grey",
-            tattoo: false,
-            headphones: true,
-            notes: "Enjoys listening to music while swimming."
-          }
-        },
-        {
-          id: 6,
-          isActive: false,
-          swimmerName: {
-            first: "Julia",
-            last: "Fischer"
-          },
-          age: 8,
-          swimDistance: 2000,
-          team: "",
-          family: "Millers",
-          gender: "female",
-          characteristics: {
-            swimwearType: "bikini",
-            swimwearColor: "pink",
-            googles: "purple",
-            swimCap: "pink",
-            hair: "yellow",
-            tattoo: false,
-            headphones: false,
-            notes: "Loves swimming with her friends."
-          }
-        },
-      ],
-      selectedInactiveSwimmer: null,
     };
   },
   setup() {
-    const laneStore = useLaneStore();
+    const laneStore    = useLaneStore();
+    const swimmerStore = useSwimmerStore();
     const { textSizeLabel, cycleTextSize } = useTextSize();
-    return {laneStore, textSizeLabel, cycleTextSize};
+    return { laneStore, swimmerStore, textSizeLabel, cycleTextSize };
   },
-  mounted() {
+  async mounted() {
     this.laneId = Number.parseInt(this.$route.params.id);
+    await participantService.registerLane(this.laneId);
+  },
+  async beforeUnmount() {
+    await participantService.unregisterLane();
   },
   watch: {
-    '$route.params.id'(newId) {
+    async '$route.params.id'(newId) {
       this.laneId = Number.parseInt(newId);
-    }
+      await participantService.registerLane(this.laneId);
+    },
   },
   computed: {
-    activeSwimmers() {
-      return this.swimmers.filter(s => s.isActive && !s.isMinimized)
-    },
-    inactiveSwimmers() {
-      return this.swimmers.filter(s => !s.isActive)
-    },
-    minimizedSwimmers() {
-      return this.swimmers.filter(s => s.isActive && s.isMinimized)
-    }
+    activeSwimmers()    { return this.swimmerStore.activeSwimmers;    },
+    inactiveSwimmers()  { return this.swimmerStore.inactiveSwimmers;  },
+    minimizedSwimmers() { return this.swimmerStore.minimizedSwimmers; },
   },
   methods: {
     inactiveSwimmerClicked(swimmer) {
-      this.selectedInactiveSwimmer = swimmer;
       this.$refs.displayInactiveSwimmerModal.openModal(swimmer);
     },
-    addSwimmerToActiveList(swimmer) {
-      swimmer.isActive = true;
-      const index = this.swimmers.findIndex(s => s.id === swimmer.id);
-      if (index !== -1) {
-        this.swimmers.splice(index, 1);
-        this.swimmers.push(swimmer);
-      }
+    async addSwimmerToActiveList(swimmer) {
+      await participantService.setActive(this.laneId, swimmer.id);
     },
-    removeSwimmerFromLane(swimmer) {
-      this.swimmers = this.swimmers.filter(s => s.id !== swimmer.id);
+    async removeSwimmerFromLane(swimmer) {
+      try {
+        await participantService.leaveLane(this.laneId, swimmer.id);
+      } catch (e) {
+        console.error('leaveLane fehlgeschlagen:', e.message);
+      }
     },
     editActiveSwimmer(swimmer) {
       this.$refs.editActiveSwimmerModal.openModal(swimmer);
     },
-    removeSwimmerFromActiveList(swimmer) {
-      swimmer.isActive = false;
+    async removeSwimmerFromActiveList(swimmer) {
+      await participantService.setInactive(this.laneId, swimmer.id);
     },
     editSwimmerCharacteristics(swimmer, startSwimming = false) {
       this.$refs.editSwimmerCharacteristicsModal.openModal(swimmer, startSwimming);
     },
-    saveSwimmerCharacteristicsChanges(updatedSwimmer) {
-      const index = this.swimmers.findIndex(s => s.id === updatedSwimmer.id);
-      if (index !== -1) {
-        this.swimmers.splice(index, 1, updatedSwimmer);
-      }
+    async saveSwimmerCharacteristicsChanges(updatedSwimmer) {
+      await participantService.saveProperties(this.laneId, updatedSwimmer);
     },
     minimizeSwimmer(swimmer) {
-      swimmer.isMinimized = true;
+      this.swimmerStore.setMinimized(swimmer.id, true);
     },
     showActiveSwimmer(swimmer) {
-      swimmer.isMinimized = false;
+      this.swimmerStore.setMinimized(swimmer.id, false);
       this.rearrangeSwimmer(swimmer);
     },
-    rearrangeSwimmer(swimmer) {
-      if (this.activeSwimmers.length > 1) {
-        const index = this.swimmers.findIndex(s => s.id === swimmer.id);
-        if (index !== -1) {
-          this.swimmers.splice(index, 1);
-          this.swimmers.push(swimmer);
-        }
+    async rearrangeSwimmer(swimmer) {
+      try {
+        await participantService.countLane(this.laneId, swimmer.id);
+      } catch (e) {
+        console.error('countLane fehlgeschlagen:', e.message);
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <the-header v-if="showHeader" :lane-count="laneCount"></the-header>
+    <the-header v-if="showHeader"></the-header>
+    <connection-banner />
     <div>
       <div class="header-placeholder"></div>
       <main class="main-content">
@@ -12,11 +13,12 @@
 
 <script>
 import TheHeader from "./components/UI/TheHeader.vue";
+import ConnectionBanner from "./components/UI/ConnectionBanner.vue";
 import {useRoute} from 'vue-router';
 
 export default {
   name: 'App',
-  components: {TheHeader},
+  components: { TheHeader, ConnectionBanner },
   setup() {
     const route = useRoute();
     return {route};
@@ -24,7 +26,6 @@ export default {
   data() {
     return {
       width: window.innerWidth,
-      laneCount: 5,
     };
   },
 

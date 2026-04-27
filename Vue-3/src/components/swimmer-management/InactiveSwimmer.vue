@@ -17,9 +17,10 @@
 </template>
 
 <script>
+import GenderIcon from '../GenderIcon.vue';
 export default {
   name: "InactiveSwimmer",
-  components: { GenderIcon: () => import('../GenderIcon.vue') },
+  components: { GenderIcon },
   props: {
     swimmer: {
       type: Object,

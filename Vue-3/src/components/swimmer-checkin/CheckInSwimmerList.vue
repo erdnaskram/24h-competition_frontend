@@ -43,9 +43,10 @@
 </template>
 
 <script>
+import GenderIcon from '../GenderIcon.vue';
 export default {
   name: 'CheckInSwimmerList',
-  components: { GenderIcon: () => import('../GenderIcon.vue') },
+  components: { GenderIcon },
   props: {
     swimmers:             { type: Array,  required: true },
     betterLaneSuggestions: { type: Set,   default: () => new Set() },

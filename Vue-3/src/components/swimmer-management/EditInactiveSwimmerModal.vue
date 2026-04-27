@@ -49,9 +49,10 @@
 </template>
 
 <script>
+import GenderIcon from '../GenderIcon.vue';
 export default {
   name: "EditInactiveSwimmerModal",
-  components: { GenderIcon: () => import('../GenderIcon.vue') },
+  components: { GenderIcon },
   props: {
   },
   data() {

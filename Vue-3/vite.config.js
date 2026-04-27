@@ -3,8 +3,6 @@ import { defineConfig } from 'vite';
 import svgLoader from "vite-svg-loader";
 import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
-import Components from 'unplugin-vue-components/vite';
-import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
 
 // https://vitejs.dev/config/
 import path from 'node:path';
@@ -15,9 +13,7 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [vue(), Components({
-    resolvers: [BootstrapVueNextResolver()]
-  }), vuetify({
+  plugins: [vue(), vuetify({
     autoImport: true
   }), svgLoader()],
   test: {

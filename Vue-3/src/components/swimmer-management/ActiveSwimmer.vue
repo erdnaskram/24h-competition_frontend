@@ -79,6 +79,7 @@
   </v-card>
 </template>
 <script>
+import GenderIcon from '../GenderIcon.vue';
 import GogglesIcon from '../../assets/content/swimmer-characteristics/goggles-fill.svg';
 import BikiniIcon from '../../assets/content/swimmer-characteristics/bikini.svg';
 import SwimSuitIcon from '../../assets/content/swimmer-characteristics/one-piece-swimsuit-fill.svg';
@@ -92,7 +93,7 @@ import HeadphoneIcon from '../../assets/content/swimmer-characteristics/earpods-
 export default {
   name: "activeSwimmer",
   components: {
-    GenderIcon: () => import('../GenderIcon.vue'),
+    GenderIcon,
     GogglesIcon,
     BikiniIcon,
     ShortPantsIcon,
