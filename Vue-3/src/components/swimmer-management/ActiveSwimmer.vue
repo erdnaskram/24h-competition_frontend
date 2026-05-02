@@ -1,7 +1,7 @@
 <template>
   <v-card
       class="active-swimmer"
-      :class="{confirmClicked: isClickConfirmationActive}"
+      :class="{ confirmClicked: isClickConfirmationActive, 'in-cooldown': isCooldownActive, 'is-shaking': isShaking }"
       style="position: relative;"
       @click="handleActiveSwimmerClicked"
       @touchstart.passive="onTouchStart"
@@ -68,13 +68,16 @@
     </transition>
 
     <div class="px-3 pb-3">
-      <v-progress-linear
-          v-model="waitTimeProgress"
-          :color="isCooldownActive ? 'primary' : 'green'"
-          height="8"
-          rounded
-          :striped="isCooldownActive"
-      ></v-progress-linear>
+      <div class="d-flex align-center ga-2">
+        <v-progress-linear
+            :model-value="barValue"
+            :color="barColor"
+            height="8"
+            rounded
+            class="flex-grow-1"
+        ></v-progress-linear>
+        <span v-if="etaLabel" class="eta-label" :class="etaClass">{{ etaLabel }}</span>
+      </div>
     </div>
   </v-card>
 </template>
@@ -109,15 +112,21 @@ export default {
       type: Object,
       required: true,
     },
+    laneAverageSeconds: {
+      type: Number,
+      default: null,
+    },
   },
   data() {
     return {
       isInScope: false,
       lastIncrementTime: null,
-      incrementCoolDown: 10_000, // 10 seconds
+      incrementCoolDown: 20_000, // 20 seconds
       waitTimeProgress: 0,
       isCooldownActive: false,
+      isShaking: false,
       now: Date.now(),
+      intervalId: null,
       isClickConfirmationActive: false,
       minimizeSwimmer: false,
       longPressTimer: null,
@@ -126,10 +135,53 @@ export default {
     };
   },
   computed: {
+    /** True wenn eigene oder Bahn-Zeit vorliegt (Backend-Default 120 zählt nicht) */
+    hasRealTimeData() {
+      return !!(this.swimmer.averageTimeSeconds || this.laneAverageSeconds);
+    },
+    /** Effektive Durchschnittszeit: eigene → Bahn-Durchschnitt → 120 s Standardwert */
+    effectiveAverageSeconds() {
+      return this.swimmer.averageTimeSeconds || this.laneAverageSeconds || 120;
+    },
+    /** Sekunden bis zur erwarteten Ankunft (negativ = überfällig) */
+    etaSeconds() {
+      if (!this.swimmer.lastCountTime) return null;
+      return Math.round(this.effectiveAverageSeconds - (this.now - this.swimmer.lastCountTime) / 1000);
+    },
+    etaLabel() {
+      if (this.etaSeconds === null || !this.hasRealTimeData) return null;
+      const abs = Math.abs(this.etaSeconds);
+      const m   = Math.floor(abs / 60);
+      const s   = abs % 60;
+      const t   = `${m}:${String(s).padStart(2, '0')}`;
+      return this.etaSeconds < 0 ? `+${t}` : t;
+    },
+    etaClass() {
+      switch (this.barColor) {
+        case 'green':                return 'eta-ok';
+        case 'yellow-darken-2':      return 'eta-arriving';
+        case 'orange':               return 'eta-overdue';
+        case 'deep-orange-darken-1': return 'eta-overdue-heavy';
+        default:                     return 'eta-neutral';
+      }
+    },
+    barValue() {
+      if (!this.swimmer.lastCountTime) return 0;
+      const elapsed = (this.now - this.swimmer.lastCountTime) / 1000;
+      return Math.min((elapsed / this.effectiveAverageSeconds) * 100, 100);
+    },
+    barColor() {
+      if (this.etaSeconds === null) return 'blue-grey-lighten-2';
+      if (this.etaSeconds < -120) return 'deep-orange-darken-1';
+      if (this.etaSeconds < -30)  return 'orange';
+      if (this.etaSeconds < -10)  return 'yellow-darken-2';
+      // Grün erst ab 75% der Durchschnittszeit (letztes Viertel)
+      return this.barValue >= 75 ? 'green' : 'blue-grey-lighten-2';
+    },
     characteristicIcons() {
       const c = this.swimmer.characteristics;
       const icons = [];
-      const swimwearMap = { bikini: 'BikiniIcon', swimsuit: 'SwimSuitIcon', 'short-pants': 'ShortPantsIcon', trunks: 'PantsIcon' };
+      const swimwearMap = { bikini: 'BikiniIcon', swimsuit: 'SwimSuitIcon', 'short-pants': 'ShortPantsIcon', 'board-shorts': 'PantsIcon' };
       if (swimwearMap[c.swimwearType]) icons.push({ key: 'swimwear', component: swimwearMap[c.swimwearType], style: { fill: c.swimwearColor } });
       if (c.googles !== 'none')  icons.push({ key: 'googles',  component: 'GogglesIcon',   style: { fill: c.googles } });
       if (c.hair !== 'none')     icons.push({ key: 'hair',     component: 'HairIcon',      style: { color: c.hair } });
@@ -138,6 +190,12 @@ export default {
       if (c.headphones)          icons.push({ key: 'headphones', component: 'HeadphoneIcon', style: {} });
       return icons;
     },
+  },
+  mounted() {
+    this.intervalId = setInterval(() => { this.now = Date.now(); }, 1000);
+  },
+  beforeUnmount() {
+    clearInterval(this.intervalId);
   },
   methods: {
     formatDistance(distance) {
@@ -156,9 +214,15 @@ export default {
     onTouchEnd() {
       clearTimeout(this.longPressTimer);
     },
+    triggerShake() {
+      if (this.isShaking) return;
+      this.isShaking = true;
+      setTimeout(() => { this.isShaking = false; }, 450);
+    },
     handleActiveSwimmerClicked() {
       if (this.longPressTriggered) return;
       if (this.lastIncrementTime && (new Date().getTime() - this.lastIncrementTime) < this.incrementCoolDown) {
+        this.triggerShake();
         return;
       }
       const hasMedalUpgrade = this.incrementLaneCount();
@@ -186,7 +250,8 @@ export default {
     incrementLaneCount() {
       this.showClickConfirmation();
       const prevDistance = this.swimmer.swimDistance;
-      this.swimmer.swimDistance += 50;
+      this.swimmer.swimDistance  += 50;
+      this.swimmer.lastCountTime  = Date.now();   // optimistisch, wird vom addParticipant-Event bestätigt
       const hasMedalUpgrade = this.checkMedalUpgrade(prevDistance, this.swimmer.swimDistance);
       this.lastIncrementTime = new Date().getTime();
       this.isCooldownActive = true;
@@ -302,6 +367,35 @@ export default {
 }
 
 .confirmClicked {
-  border-color: #4caf50; /* Vuetify-Grün */
+  border-color: #4caf50;
 }
+
+.in-cooldown {
+  cursor: default !important;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0);    }
+  20%       { transform: translateX(-7px); }
+  40%       { transform: translateX(7px);  }
+  60%       { transform: translateX(-5px); }
+  80%       { transform: translateX(5px);  }
+}
+.is-shaking {
+  animation: shake 0.45s ease-in-out;
+}
+
+.eta-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.eta-neutral      { color: #90a4ae; }
+.eta-ok           { color: #388e3c; }
+.eta-arriving     { color: #f9a825; }
+.eta-overdue      { color: #e65100; }
+.eta-overdue-heavy { color: #b71c1c; }
 </style>

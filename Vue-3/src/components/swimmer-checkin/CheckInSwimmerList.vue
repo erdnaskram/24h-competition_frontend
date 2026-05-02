@@ -23,7 +23,7 @@
             </div>
             <div class="text-body-2 text-medium-emphasis mt-1">
               <v-icon size="14">mdi-timer-outline</v-icon>
-              {{ formatTime(swimmer.averageTimeSeconds) }}
+              {{ swimmer.lanes > 0 ? formatTime(swimmer.averageTimeSeconds) : '--:--' }}
               &nbsp;&bull;&nbsp;
               <v-icon size="14">mdi-swim</v-icon>
               {{ swimmer.lanes }} Bahnen / {{ (swimmer.lanes * 25).toLocaleString('de-DE') }} m

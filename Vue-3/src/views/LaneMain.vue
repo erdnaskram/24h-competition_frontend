@@ -77,6 +77,7 @@
               v-for="swimmer in activeSwimmers"
               :key="'activeSwimmer' + swimmer.id"
               :swimmer="swimmer"
+              :lane-average-seconds="laneAverageSeconds"
               @editActiveSwimmer="editActiveSwimmer"
               @activeSwimmerClicked="rearrangeSwimmer"
           ></active-swimmer>
@@ -211,6 +212,12 @@ export default {
     activeSwimmers()    { return this.swimmerStore.activeSwimmers;    },
     inactiveSwimmers()  { return this.swimmerStore.inactiveSwimmers;  },
     minimizedSwimmers() { return this.swimmerStore.minimizedSwimmers; },
+    /** Durchschnitt aller Schwimmer der Bahn die bereits Zeiten haben, sonst null */
+    laneAverageSeconds() {
+      const withTime = this.swimmerStore.swimmers.filter(s => s.averageTimeSeconds);
+      if (!withTime.length) return null;
+      return withTime.reduce((sum, s) => sum + s.averageTimeSeconds, 0) / withTime.length;
+    },
   },
   methods: {
     inactiveSwimmerClicked(swimmer) {

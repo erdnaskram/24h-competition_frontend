@@ -16,25 +16,29 @@
                 border
                 divided>
               <v-btn
+                  v-if="localSwimmer.gender !== 'male'"
                   value="bikini"
                   class="characteristics-btn">
                 <bikini-icon
                     class="swimmer-characteristics-icon"/>
               </v-btn>
               <v-btn
+                  v-if="localSwimmer.gender !== 'male'"
                   value="swimsuit"
                   class="characteristics-btn">
                 <swim-suit-icon
                     class="swimmer-characteristics-icon"/>
               </v-btn>
               <v-btn
+                  v-if="localSwimmer.gender !== 'female'"
                   value="short-pants"
                   class="characteristics-btn">
                 <short-pants-icon
                     class="swimmer-characteristics-icon"/>
               </v-btn>
               <v-btn
-                  value="trunks"
+                  v-if="localSwimmer.gender !== 'female'"
+                  value="board-shorts"
                   class="characteristics-btn">
                 <pants-icon
                     class="swimmer-characteristics-icon"/>

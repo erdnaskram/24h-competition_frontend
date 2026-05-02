@@ -11,7 +11,7 @@
           {{ selectedSwimmer.firstName }} {{ selectedSwimmer.lastName }}
         </div>
         <div v-if="selectedSwimmer" class="assignment-swimmer-characteristics text-caption font-weight-regular text-medium-emphasis">
-          Ø {{ formatTime(selectedSwimmer.averageTimeSeconds) }} &nbsp;·&nbsp;
+          Ø {{ selectedSwimmer.lanes > 0 ? formatTime(selectedSwimmer.averageTimeSeconds) : '--:--' }} &nbsp;·&nbsp;
           {{ selectedSwimmer.lanes }} Bahnen
         </div>
       </v-card-title>
