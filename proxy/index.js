@@ -12,7 +12,7 @@ const app = express()
 
 // CORS: Frontend-Origin erlauben (credentials für SignalR Cookies/Header)
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: true, // alle Origins erlaubt (nur für lokales Netzwerk gedacht)
     credentials: true,
 }))
 
@@ -35,8 +35,8 @@ app.use('/', proxy)
 const server = createServer(app)
 server.on('upgrade', proxy.upgrade)
 
-server.listen(PORT, () => {
-    console.log(`Proxy läuft auf http://localhost:${PORT}`)
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Proxy läuft auf http://0.0.0.0:${PORT} (im Netzwerk erreichbar)`)
     console.log(`  → Frontend erlaubt: ${FRONTEND_URL}`)
     console.log(`  → Backend:          ${BACKEND_URL}`)
 })
