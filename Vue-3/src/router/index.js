@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import AdminView from '../views/AdminView.vue';
-import Results from '../views/Results.vue';
+import Results   from '../views/Results.vue';
 import LaneSelect from '../views/LaneSelect.vue';
 import LaneMain from '../views/LaneMain.vue';
 import CheckIn  from "../views/CheckIn.vue";

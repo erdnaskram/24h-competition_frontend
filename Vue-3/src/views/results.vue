@@ -1,666 +1,523 @@
 <template>
+  <!-- Navbar erscheint wenn Maus in die oberen 60px geht -->
+  <the-header v-if="navOpen" />
+
   <section class="tv-screen">
-    <div id="count">
-      {{ currentTime }} - {{ formatDistance(laneSumm) }}
+    <!-- ── Header: Stats | Uhrzeit | Gesamtstrecke ── -->
+    <div class="header">
+      <div class="hd-stats">
+        <div class="hd-stat">
+          <span class="hd-stat-val">{{ totalCount }}</span>
+          <span class="hd-stat-lbl">Teilnehmer</span>
+        </div>
+        <div class="hd-divider"></div>
+        <div class="hd-stat">
+          <span class="hd-stat-val hd-active-val">
+            <span class="active-dot"></span>{{ activeCount }}
+          </span>
+          <span class="hd-stat-lbl">Im Wasser</span>
+        </div>
+      </div>
+
+      <div class="hd-total">
+        <span class="hd-total-val">{{ fmtTotal }}</span>
+      </div>
+
+      <div class="hd-time">{{ currentTime }}</div>
     </div>
 
-    <div id="resultcontainer">
-      <div
-          class="scroll-wrapper"
-          :style="{ animationDuration: scrollDuration + 's' }"
-      >
+    <!-- ── Verbindungsfehler ── -->
+    <div v-if="error" class="conn-err">
+      Verbindungsfehler – letzte Daten werden angezeigt
+    </div>
 
-        <div class="results-block">
-          <div v-for="result in results" :key="'orig-' + result.id" class="result">
-            #{{ result.id }} - {{ result.first_name }} {{ result.last_name }}: {{ formatDistance(result.lanes) }}
+    <!-- ── Ladeindikator ── -->
+    <div v-if="sorted.length === 0 && !error" class="loading">
+      Lade Ergebnisse…
+    </div>
+
+    <!-- ── Ergebnisliste ── -->
+    <div v-else ref="listSect" class="list-sect">
+
+      <!-- Modus: Scrollen (Standard, ?scroll=off fehlt) -->
+      <template v-if="scrollMode">
+        <div
+          ref="scrollWrap"
+          class="scroll-wrap"
+          :class="{ 'is-scrolling': needsScroll }"
+          :style="needsScroll ? { animationDuration: scrollDuration + 's' } : {}"
+        >
+          <div class="list-block">
+            <div v-for="r in sorted" :key="r.id" class="list-row" :class="{ 'row-active': r.isActive }">
+              <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive }"></span>
+              <span class="lr-id">{{ r.id }}</span>
+              <span class="lr-name">{{ r.firstName }} {{ r.lastName }}</span>
+              <span class="lr-dist">{{ fmtDist(r.lanes) }}</span>
+            </div>
+          </div>
+          <div v-if="needsScroll" class="list-block" aria-hidden="true">
+            <div v-for="r in sorted" :key="'dup-' + r.id" class="list-row" :class="{ 'row-active': r.isActive }">
+              <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive }"></span>
+              <span class="lr-id">{{ r.id }}</span>
+              <span class="lr-name">{{ r.firstName }} {{ r.lastName }}</span>
+              <span class="lr-dist">{{ fmtDist(r.lanes) }}</span>
+            </div>
           </div>
         </div>
+      </template>
 
-        <div class="results-block">
-          <div v-for="result in results" :key="'copy-' + result.id" class="result">
-            #{{ result.id }} - {{ result.first_name }} {{ result.last_name }}: {{ formatDistance(result.lanes) }}
+      <!-- Modus: Seiten blättern (?scroll=off) -->
+      <template v-else>
+        <div class="list-block">
+          <div v-for="r in visibleItems" :key="r.id" class="list-row" :class="{ 'row-active': r.isActive }">
+            <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive }"></span>
+            <span class="lr-id">{{ r.id }}</span>
+            <span class="lr-name">{{ r.firstName }} {{ r.lastName }}</span>
+            <span class="lr-dist">{{ fmtDist(r.lanes) }}</span>
           </div>
         </div>
+        <div v-if="totalPages > 1" class="page-indicator">
+          {{ pageIndex + 1 }} / {{ totalPages }}
+        </div>
+      </template>
 
-      </div>
     </div>
   </section>
 </template>
 
 <script>
-// Umgerechnet in Sekunden für die CSS-Animation (800ms = 0.8s pro Element)
-const SCROLL_FACTOR_SECONDS = 0.8;
+import { participantService } from '../services/participantService.js'
+import TheHeader from '../components/UI/TheHeader.vue'
 
+const PER_ITEM_S = 1
 export default {
-  name: 'Results',
+  name: 'Results3',
+
+  components: { TheHeader },
+
   data() {
     return {
-      count: 0,
-      currentTime: new Date().toLocaleTimeString(),
-      baseValue: 0,
-      results:[
-          {
-        "id": 1,
-        "first_name": "Blondie",
-        "last_name": "Brinkman",
-        "lanes": 28
-      }, {
-        "id": 2,
-        "first_name": "Lemmy",
-        "last_name": "Eddoes",
-        "lanes": 82
-      }, {
-        "id": 3,
-        "first_name": "Jacklyn",
-        "last_name": "Sebright",
-        "lanes": 106
-      }, {
-        "id": 4,
-        "first_name": "Florian",
-        "last_name": "Cream",
-        "lanes": 95
-      }, {
-        "id": 5,
-        "first_name": "Lenci",
-        "last_name": "Pelz",
-        "lanes": 197
-      }, {
-        "id": 6,
-        "first_name": "Otis",
-        "last_name": "O'Cleary",
-        "lanes": 169
-      }, {
-        "id": 7,
-        "first_name": "Phelia",
-        "last_name": "Crinkley",
-        "lanes": 26
-      }, {
-        "id": 8,
-        "first_name": "Kiley",
-        "last_name": "Gilchriest",
-        "lanes": 51
-      }, {
-        "id": 9,
-        "first_name": "Marion",
-        "last_name": "Batman",
-        "lanes": 96
-      }, {
-        "id": 10,
-        "first_name": "Dom",
-        "last_name": "Lascelles",
-        "lanes": 104
-      }, {
-        "id": 11,
-        "first_name": "Retha",
-        "last_name": "Mapowder",
-        "lanes": 82
-      }, {
-        "id": 12,
-        "first_name": "Cathryn",
-        "last_name": "Morrad",
-        "lanes": 199
-      }, {
-        "id": 13,
-        "first_name": "Virgie",
-        "last_name": "Robilliard",
-        "lanes": 184
-      }, {
-        "id": 14,
-        "first_name": "Lelia",
-        "last_name": "Pantry",
-        "lanes": 178
-      }, {
-        "id": 15,
-        "first_name": "Shelagh",
-        "last_name": "Fairman",
-        "lanes": null
-      }, {
-        "id": 16,
-        "first_name": "Kalil",
-        "last_name": "Ughi",
-        "lanes": 113
-      }, {
-        "id": 17,
-        "first_name": "Morton",
-        "last_name": "Dufton",
-        "lanes": 163
-      }, {
-        "id": 18,
-        "first_name": "Jenica",
-        "last_name": "Bernini",
-        "lanes": 48
-      }, {
-        "id": 19,
-        "first_name": "Georgiana",
-        "last_name": "Butfield",
-        "lanes": 144
-      }, {
-        "id": 20,
-        "first_name": "Mal",
-        "last_name": "Sheriff",
-        "lanes": 103
-      }, {
-        "id": 21,
-        "first_name": "Humfrid",
-        "last_name": "Rizzolo",
-        "lanes": 165
-      }, {
-        "id": 22,
-        "first_name": "Baldwin",
-        "last_name": "Curtiss",
-        "lanes": 121
-      }, {
-        "id": 23,
-        "first_name": "Garik",
-        "last_name": "Boow",
-        "lanes": 161
-      }, {
-        "id": 24,
-        "first_name": "Della",
-        "last_name": "Amar",
-        "lanes": 163
-      }, {
-        "id": 25,
-        "first_name": "Etan",
-        "last_name": "Edelheid",
-        "lanes": 157
-      }, {
-        "id": 26,
-        "first_name": "George",
-        "last_name": "Hayhurst",
-        "lanes": 184
-      }, {
-        "id": 27,
-        "first_name": "Brunhilde",
-        "last_name": "Lorenzetto",
-        "lanes": 174
-      }, {
-        "id": 28,
-        "first_name": "Michaeline",
-        "last_name": "Fury",
-        "lanes": 126
-      }, {
-        "id": 29,
-        "first_name": "Cookie",
-        "last_name": "Paszek",
-        "lanes": 118
-      }, {
-        "id": 30,
-        "first_name": "Gertrud",
-        "last_name": "Hardwidge",
-        "lanes": 8
-      }, {
-        "id": 31,
-        "first_name": "Redford",
-        "last_name": "Lardeur",
-        "lanes": 4
-      }, {
-        "id": 32,
-        "first_name": "Reeva",
-        "last_name": "Hallin",
-        "lanes": 86
-      }, {
-        "id": 33,
-        "first_name": "Bobbye",
-        "last_name": "Walduck",
-        "lanes": 141
-      }, {
-        "id": 34,
-        "first_name": "Shel",
-        "last_name": "Husby",
-        "lanes": 54
-      }, {
-        "id": 35,
-        "first_name": "Barbra",
-        "last_name": "Ings",
-        "lanes": 66
-      }, {
-        "id": 36,
-        "first_name": "Happy",
-        "last_name": "Olorenshaw",
-        "lanes": 96
-      }, {
-        "id": 37,
-        "first_name": "Erwin",
-        "last_name": "Aguirrezabala",
-        "lanes": 96
-      }, {
-        "id": 38,
-        "first_name": "Arabela",
-        "last_name": "Braven",
-        "lanes": 164
-      }, {
-        "id": 39,
-        "first_name": "Jaimie",
-        "last_name": "Lewerenz",
-        "lanes": 4
-      }, {
-        "id": 40,
-        "first_name": "Ulrike",
-        "last_name": "Stollman",
-        "lanes": 11
-      }, {
-        "id": 41,
-        "first_name": "Clemmie",
-        "last_name": "Rayer",
-        "lanes": 92
-      }, {
-        "id": 42,
-        "first_name": "Colan",
-        "last_name": "Mersey",
-        "lanes": 177
-      }, {
-        "id": 43,
-        "first_name": "Kelley",
-        "last_name": "Babb",
-        "lanes": 9
-      }, {
-        "id": 44,
-        "first_name": "Vitoria",
-        "last_name": "Hairsnape",
-        "lanes": 54
-      }, {
-        "id": 45,
-        "first_name": "Katheryn",
-        "last_name": "Gajewski",
-        "lanes": 10
-      }, {
-        "id": 46,
-        "first_name": "Kennie",
-        "last_name": "Leblanc",
-        "lanes": 62
-      }, {
-        "id": 47,
-        "first_name": "Lynsey",
-        "last_name": "Proom",
-        "lanes": 158
-      }, {
-        "id": 48,
-        "first_name": "Chandler",
-        "last_name": "Itzakovitz",
-        "lanes": 199
-      }, {
-        "id": 49,
-        "first_name": "Judye",
-        "last_name": "Treece",
-        "lanes": 199
-      }, {
-        "id": 50,
-        "first_name": "Lazar",
-        "last_name": "Gatsby",
-        "lanes": 133
-      }, {
-        "id": 51,
-        "first_name": "Melessa",
-        "last_name": "Fentem",
-        "lanes": 8
-      }, {
-        "id": 52,
-        "first_name": "Lowe",
-        "last_name": "Davana",
-        "lanes": 185
-      }, {
-        "id": 53,
-        "first_name": "Kellen",
-        "last_name": "Shirley",
-        "lanes": 61
-      }, {
-        "id": 54,
-        "first_name": "Aldin",
-        "last_name": "Pottle",
-        "lanes": 137
-      }, {
-        "id": 55,
-        "first_name": "Nollie",
-        "last_name": "Rennicks",
-        "lanes": 22
-      }, {
-        "id": 56,
-        "first_name": "Ward",
-        "last_name": "Espinho",
-        "lanes": 135
-      }, {
-        "id": 57,
-        "first_name": "Gayle",
-        "last_name": "Clendennen",
-        "lanes": 10
-      }, {
-        "id": 58,
-        "first_name": "Muhammad",
-        "last_name": "Norris",
-        "lanes": 32
-      }, {
-        "id": 59,
-        "first_name": "Corine",
-        "last_name": "Papis",
-        "lanes": 72
-      }, {
-        "id": 60,
-        "first_name": "Coralyn",
-        "last_name": "McReynold",
-        "lanes": 182
-      }, {
-        "id": 61,
-        "first_name": "Ceciley",
-        "last_name": "Georgins",
-        "lanes": 61
-      }, {
-        "id": 62,
-        "first_name": "Daisy",
-        "last_name": "Fust",
-        "lanes": 143
-      }, {
-        "id": 63,
-        "first_name": "Raine",
-        "last_name": "Algar",
-        "lanes": 10
-      }, {
-        "id": 64,
-        "first_name": "Culley",
-        "last_name": "Trimmill",
-        "lanes": 39
-      }, {
-        "id": 65,
-        "first_name": "Kev",
-        "last_name": "Cursons",
-        "lanes": 75
-      }, {
-        "id": 66,
-        "first_name": "Charlean",
-        "last_name": "Yetts",
-        "lanes": 121
-      }, {
-        "id": 67,
-        "first_name": "Ricca",
-        "last_name": "Dymock",
-        "lanes": 102
-      }, {
-        "id": 68,
-        "first_name": "Kiele",
-        "last_name": "Fidele",
-        "lanes": 126
-      }, {
-        "id": 69,
-        "first_name": "David",
-        "last_name": "Whotton",
-        "lanes": 183
-      }, {
-        "id": 70,
-        "first_name": "Nikkie",
-        "last_name": "Briggdale",
-        "lanes": 108
-      }, {
-        "id": 71,
-        "first_name": "Halley",
-        "last_name": "Acaster",
-        "lanes": 54
-      }, {
-        "id": 72,
-        "first_name": "Malissia",
-        "last_name": "O'Shevlin",
-        "lanes": 119
-      }, {
-        "id": 73,
-        "first_name": "Orran",
-        "last_name": "Nuton",
-        "lanes": 90
-      }, {
-        "id": 74,
-        "first_name": "Waite",
-        "last_name": "Featley",
-        "lanes": 88
-      }, {
-        "id": 75,
-        "first_name": "Glennis",
-        "last_name": "Danielli",
-        "lanes": 122
-      }, {
-        "id": 76,
-        "first_name": "Dulcea",
-        "last_name": "Ennever",
-        "lanes": 170
-      }, {
-        "id": 77,
-        "first_name": "Sig",
-        "last_name": "Farres",
-        "lanes": 24
-      }, {
-        "id": 78,
-        "first_name": "Nevsa",
-        "last_name": "Olivetti",
-        "lanes": 184
-      }, {
-        "id": 79,
-        "first_name": "Dael",
-        "last_name": "Huccaby",
-        "lanes": 113
-      }, {
-        "id": 80,
-        "first_name": "Haily",
-        "last_name": "Edwin",
-        "lanes": 14
-      }, {
-        "id": 81,
-        "first_name": "Kendal",
-        "last_name": "Mulliss",
-        "lanes": 94
-      }, {
-        "id": 82,
-        "first_name": "Billy",
-        "last_name": "Tapton",
-        "lanes": 56
-      }, {
-        "id": 83,
-        "first_name": "Hartwell",
-        "last_name": "Funcheon",
-        "lanes": 22
-      }, {
-        "id": 84,
-        "first_name": "Kimbell",
-        "last_name": "Figgen",
-        "lanes": 144
-      }, {
-        "id": 85,
-        "first_name": "Nelia",
-        "last_name": "Hindrich",
-        "lanes": 119
-      }, {
-        "id": 86,
-        "first_name": "Cinnamon",
-        "last_name": "Gasperi",
-        "lanes": 49
-      }, {
-        "id": 87,
-        "first_name": "Adams",
-        "last_name": "Maddison",
-        "lanes": 125
-      }, {
-        "id": 88,
-        "first_name": "Giorgia",
-        "last_name": "Whylie",
-        "lanes": 8
-      }, {
-        "id": 89,
-        "first_name": "Eartha",
-        "last_name": "Boxell",
-        "lanes": 200
-      }, {
-        "id": 90,
-        "first_name": "Cody",
-        "last_name": "Carek",
-        "lanes": 73
-      }, {
-        "id": 91,
-        "first_name": "Ted",
-        "last_name": "Comizzoli",
-        "lanes": 40
-      }, {
-        "id": 92,
-        "first_name": "Liva",
-        "last_name": "Peres",
-        "lanes": 54
-      }, {
-        "id": 93,
-        "first_name": "Eolande",
-        "last_name": "Duberry",
-        "lanes": 180
-      }, {
-        "id": 94,
-        "first_name": "Rebecca",
-        "last_name": "Ginnally",
-        "lanes": 171
-      }, {
-        "id": 95,
-        "first_name": "Gregory",
-        "last_name": "Northway",
-        "lanes": 49
-      }, {
-        "id": 96,
-        "first_name": "Marvin",
-        "last_name": "Summerill",
-        "lanes": 111
-      }, {
-        "id": 97,
-        "first_name": "Janeen",
-        "last_name": "Revely",
-        "lanes": 11
-      }, {
-        "id": 98,
-        "first_name": "Rhianna",
-        "last_name": "Escott",
-        "lanes": 53
-      }, {
-        "id": 99,
-        "first_name": "Matt",
-        "last_name": "Vallow",
-        "lanes": 57
-      }, {
-        "id": 100,
-        "first_name": "Flore",
-        "last_name": "D'Onise",
-        "lanes": 24
-      }]
+      raw:          [],
+      error:        null,
+      currentTime:  new Date().toLocaleTimeString(),
+      navOpen:          false,
+      needsScroll:      false,
+      pageIndex:        0,
+      itemsPerPage:     20,
+      _lastMouseCheck:  0,
     }
   },
-  computed: {
-    laneSumm() {
-      return this.results.reduce((sum, result) => sum + (result.lanes || 0), 0);
-    },
-    // Berechnet die Dauer der Animation abhängig von der Anzahl der Teilnehmer
-    scrollDuration() {
-      return this.results.length * SCROLL_FACTOR_SECONDS;
-    }
-  },
-  methods: {
-    updateTime() {
-      this.currentTime = new Date().toLocaleTimeString();
-    },
-    formatDistance(distance) {
-      if (distance === null || distance === undefined) {
-        return 'N/A';
-      }
-      let meters = distance * 25;
-      if (meters >= 1000) {
-        return (meters / 1000).toFixed(2) + ' km';
-      } else {
-        return meters + ' m';
-      }
-    },
-  },
-  mounted() {
-    this.timer = setInterval(this.updateTime, 1000);
 
-    this.timer2 = setInterval(() => {
-      this.baseValue += Math.floor(Math.random() * (500 - 50 + 1)) + 50;
-    }, 5000);
+  computed: {
+    scrollMode() {
+      return this.$route?.query?.scroll !== 'off'
+    },
+    sorted() {
+      return this.raw.slice().sort((a, b) => (a.id || 0) - (b.id || 0))
+    },
+    totalCount() {
+      return this.raw.length
+    },
+    activeCount() {
+      return this.raw.filter(r => r.isActive).length
+    },
+    fmtTotal() {
+      return this.fmtDist(this.raw.reduce((s, r) => s + (r.lanes || 0), 0))
+    },
+    scrollDuration() {
+      return Math.max(this.sorted.length * PER_ITEM_S, 10)
+    },
+    totalPages() {
+      return Math.max(1, Math.ceil(this.sorted.length / this.itemsPerPage))
+    },
+    visibleItems() {
+      const start = this.pageIndex * this.itemsPerPage
+      return this.sorted.slice(start, start + this.itemsPerPage)
+    },
   },
-  // WICHTIG: In Vue 3 heißt das beforeUnmount (nicht mehr beforeDestroy)
+
+  methods: {
+    fmtDist(lanes) {
+      if (lanes == null) return 'N/A'
+      const m = lanes * 25
+      return m > 1000
+        ? (m / 1000).toLocaleString('de-DE') + ' km'
+        : m.toLocaleString('de-DE') + ' m'
+    },
+    async load() {
+      try {
+        const fresh = await participantService.searchAsYouType('')
+        this.error = null
+        if (!this._dataEqual(fresh, this.raw)) {
+          this.raw = fresh.map(item => Object.freeze(item))
+          if (this.scrollMode) {
+            await this.checkScroll()
+          } else {
+            await this.$nextTick()
+            this.calculateItemsPerPage()
+          }
+        }
+      } catch (e) {
+        this.error = e.message
+      }
+    },
+    _dataEqual(a, b) {
+      if (a.length !== b.length) return false
+      return a.every((item, i) =>
+        item.id === b[i].id &&
+        item.lanes === b[i].lanes &&
+        item.isActive === b[i].isActive
+      )
+    },
+    async checkScroll() {
+      // Immer in 1-Spalten-Modus messen, sonst Oszillation
+      this.needsScroll = false
+      await this.$nextTick()
+      const sect = this.$refs.listSect
+      const wrap = this.$refs.scrollWrap
+      if (!sect || !wrap) return
+      this.needsScroll = wrap.scrollHeight > sect.clientHeight
+    },
+    advancePage() {
+      this.pageIndex = (this.pageIndex + 1) % this.totalPages
+    },
+    calculateItemsPerPage() {
+      const sect = this.$refs.listSect
+      if (!sect) return
+      const row = sect.querySelector('.list-row')
+      const rowH = row ? row.getBoundingClientRect().height : 32
+      const fit = Math.floor(sect.clientHeight / rowH)
+      const cols = window.innerWidth > 900 ? 2 : 1
+      if (fit > 0) this.itemsPerPage = fit * cols
+    },
+    onMouseMove(e) {
+      const now = Date.now()
+      if (now - this._lastMouseCheck < 100) return
+      this._lastMouseCheck = now
+      if (e.clientY < 60) {
+        clearTimeout(this._hideNavTimer)
+        this.navOpen = true
+      } else if (this.navOpen) {
+        clearTimeout(this._hideNavTimer)
+        this._hideNavTimer = setTimeout(() => { this.navOpen = false }, 800)
+      }
+    },
+  },
+
+  mounted() {
+    this.load()
+    this._pollId  = setInterval(this.load, 30_000)
+    this._clockId = setInterval(() => { this.currentTime = new Date().toLocaleTimeString() }, 1000)
+    document.addEventListener('mousemove', this.onMouseMove)
+
+    if (this.scrollMode) {
+      this._resizeObserver = new ResizeObserver(this.checkScroll)
+      this.$nextTick(() => {
+        if (this.$refs.listSect) this._resizeObserver.observe(this.$refs.listSect)
+      })
+    } else {
+      this._pageTimer = setInterval(this.advancePage, 10_000)
+      this.$nextTick(() => this.calculateItemsPerPage())
+      this._resizeObserver = new ResizeObserver(() => {
+        this.calculateItemsPerPage()
+        this.pageIndex = 0
+      })
+      this.$nextTick(() => {
+        if (this.$refs.listSect) this._resizeObserver.observe(this.$refs.listSect)
+      })
+    }
+  },
+
   beforeUnmount() {
-    clearInterval(this.timer);
-    clearInterval(this.timer2);
-  }
+    clearInterval(this._pollId)
+    clearInterval(this._clockId)
+    clearInterval(this._pageTimer)
+    clearTimeout(this._hideNavTimer)
+    document.removeEventListener('mousemove', this.onMouseMove)
+    if (this._resizeObserver) this._resizeObserver.disconnect()
+  },
 }
 </script>
 
 <style scoped>
+/* ── Grundstruktur ─────────────────────────────────────────────────────────── */
+
 .tv-screen {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: black;
+  inset: 0;
+  background: #111;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  z-index: 10;
+  font-family: Arial, sans-serif;
 }
 
-#count {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  /* fluid: ~28px auf 375px Handy, ~80px auf 1200px, 120px auf 1800px+ TV */
-  font-size: clamp(1.75rem, 7vw, 7.5rem);
-  line-height: 1.15;
-  padding: 0.1em 0;
-  color: white;
-  font-family: Arial;
-  font-weight: bold;
-  background-color: #bf0f0f;
+/* ── Header ────────────────────────────────────────────────────────────────── */
+
+.header {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.15em 0.6em;
+  background: #bf0f0f;
+  color: #fff;
   z-index: 100;
 }
 
-#resultcontainer {
-  background-color: black;
-  position: absolute;
-  /* passt sich an die Höhe des #count-Headers an (ca. 1.35 × font-size) */
-  top: clamp(50px, 9.5vw, 160px);
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow: hidden;
+/* Linke Seite: Teilnehmer + Im Wasser */
+.hd-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  justify-content: flex-start;
 }
 
-.scroll-wrapper {
-  animation-name: scroll-vertical;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  /* fluid: ~16px auf 375px Handy, ~42px auf 1200px, 60px auf 1714px+ TV */
-  font-size: clamp(1rem, 3.5vw, 3.75rem);
-  color: white;
-  font-family: Arial;
+.hd-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
 }
 
-.results-block {
-  width: 100%;
+.hd-stat-val {
+  font-size: clamp(1.1rem, 3.2vw, 3.5rem);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
 }
 
-.result {
-  display: block;
-  width: 100%;
-  padding: 0.05em 0.5em;
-  box-sizing: border-box;
+.hd-stat-lbl {
+  font-size: clamp(0.5rem, 1.2vw, 1.3rem);
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hd-divider {
+  width: 1px;
+  height: 2em;
+  background: rgba(255,255,255,0.35);
+  flex: 0 0 auto;
+}
+
+/* Pulsierender grüner Punkt im "Im Wasser"-Wert */
+.active-dot {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 0.35em #4caf50;
+  animation: dot-pulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%       { opacity: 0.5; transform: scale(1.25); }
+}
+
+/* Mitte: Gesamtstrecke */
+.hd-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+
+.hd-total-val {
+  font-size: clamp(1.75rem, 6.5vw, 7rem);
+  font-weight: bold;
   white-space: nowrap;
+}
+
+/* Rechte Seite: Uhrzeit */
+.hd-time {
+  font-size: clamp(1.1rem, 3.2vw, 3.5rem);
+  font-weight: bold;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+/* ── Fehler / Laden ────────────────────────────────────────────────────────── */
+
+.conn-err {
+  flex: 0 0 auto;
+  text-align: center;
+  padding: 0.3em;
+  background: #bf360c;
+  color: #fff;
+  font-size: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: clamp(1rem, 2vw, 2rem);
+}
+
+/* ── Scrollende Liste ──────────────────────────────────────────────────────── */
+
+.list-sect {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  font-size: clamp(0.9rem, 2.4vw, 2.65rem);
+  color: #e0e0e0;
+}
+
+.scroll-wrap {
+  will-change: transform;
+}
+
+.scroll-wrap.is-scrolling {
+  animation: scroll-up linear infinite;
+}
+
+.list-block {
+  width: 100%;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  padding: 0.08em 0.6em;
+  gap: 0.4em;
+  white-space: nowrap;
+  box-sizing: border-box;
+  color: #e0e0e0;
+  border-left: 3px solid transparent;
+}
+
+.list-row.row-active {
+  background: rgba(76, 175, 80, 0.07);
+  border-left-color: #4caf50;
+}
+
+/* Status-Punkt pro Zeile */
+.lr-dot {
+  flex: 0 0 0.5em;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.lr-dot.lr-dot-on {
+  background: #4caf50;
+  box-shadow: 0 0 0.35em #4caf50;
+}
+
+.lr-id {
+  flex: 0 0 2.4em;
+  text-align: right;
+  color: #888;
+  font-size: 0.85em;
+}
+
+.lr-name {
+  flex: 0 0 16em;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Ab 1200px (Desktop / TV): Mehrspaltiges Layout wie vorher */
-@media (min-width: 1200px) {
-  .result {
-    display: inline-block;
-    width: auto;
-    min-width: 35em;
-    padding-left: 25px;
-    overflow: visible;
-    text-overflow: unset;
-    white-space: nowrap;
+.lr-dist {
+  flex: 0 0 6.5em;
+  text-align: right;
+}
+
+@keyframes scroll-up {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+.page-indicator {
+  position: absolute;
+  bottom: 0.4em;
+  right: 0.6em;
+  font-size: clamp(0.6rem, 1vw, 1rem);
+  color: #555;
+}
+
+/* ── TV / Desktop: 2 Spalten ───────────────────────────────────────────────── */
+
+@media (min-width: 901px) {
+  .list-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .list-row {
+    min-width: 0;
+    overflow: hidden;
+  }
+  .lr-name {
+    flex: 1;
+    min-width: 0;
+  }
+  .lr-dist {
+    flex: 0 0 5em;
   }
 }
 
-@keyframes scroll-vertical {
-  0%   { transform: translateY(0); }
-  100% { transform: translateY(-50%); }
+/* ── Tablet ────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .hd-stat-lbl {
+    display: none;
+  }
+  .list-sect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .scroll-wrap,
+  .list-block {
+    width: 100%;
+    max-width: 680px;
+  }
 }
+
+/* ── Mobile ────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .header {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+
+  .hd-stats {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-start;
+    padding-left: 0.2em;
+  }
+
+  .hd-total {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-items: flex-end;
+  }
+
+  .hd-time {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: left;
+  }
+
+  .lr-name {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 </style>

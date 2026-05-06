@@ -250,7 +250,6 @@ export default {
     },
     showActiveSwimmer(swimmer) {
       this.swimmerStore.setMinimized(swimmer.id, false);
-      this.rearrangeSwimmer(swimmer);
     },
     async rearrangeSwimmer(swimmer) {
       try {

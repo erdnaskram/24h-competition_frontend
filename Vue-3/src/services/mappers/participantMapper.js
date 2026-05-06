@@ -12,7 +12,7 @@
 
 const GENDER_TO_FRONTEND = {
     'm': 'male',
-    'f': 'female',
+    'w': 'female',
     'd': 'diverse',
 }
 
@@ -148,5 +148,6 @@ export function resultToFrontend(r) {
         first_name: splitName(r.name).first,
         last_name: splitName(r.name).last,
         lanes: r.lanes ?? 0,               // bleibt als Bahnen (× 25 m = Distanz)
+        isActive: r.isActive ?? false,
     }
 }
