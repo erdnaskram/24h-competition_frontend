@@ -100,11 +100,13 @@
               </v-btn-toggle>
               <v-btn-toggle v-model="localSwimmer.characteristics.swimCap" border divided color="grey">
                 <v-btn class="characteristics-btn" v-for="color in colorMap.slice(half)" :key="color.id" :value="color.id"><hat-icon class="swimmer-characteristics-icon" :class="{'icon-border-hat': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+                <v-btn value="HatEbern" class="characteristics-btn"><img src="/hats/HatEbern.png" class="hat-ebern-img" alt="HatEbern"/></v-btn>
               </v-btn-toggle>
             </template>
             <v-btn-toggle v-else v-model="localSwimmer.characteristics.swimCap" border divided color="grey">
               <v-btn value="none"><hat-icon class="swimmer-characteristics-icon"/><v-icon style="position:absolute;top:35%;left:65%;transform:translate(-50%,-50%);" size="40" color="red">mdi-close-thick</v-icon></v-btn>
               <v-btn class="characteristics-btn" v-for="color in colorMap" :key="color.id" :value="color.id"><hat-icon class="swimmer-characteristics-icon" :class="{'icon-border-hat': color.id==='white'}" :style="{ fill: 'rgb(var(--v-theme-' + color.cssVar + '))' }"/></v-btn>
+              <v-btn value="HatEbern" class="characteristics-btn"><img src="/hats/HatEbern.png" class="hat-ebern-img" alt="HatEbern"/></v-btn>
             </v-btn-toggle>
           </v-col>
         </v-row>
@@ -367,6 +369,12 @@ export default {
 .characteristics-btn {
   width: 50px;
   height: 50px;
+}
+
+.hat-ebern-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
 }
 
 .icon-border-googles {

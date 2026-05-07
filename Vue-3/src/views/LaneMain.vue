@@ -141,22 +141,19 @@
       ref="displayInactiveSwimmerModal"
       @startSwimming="addSwimmerToActiveList"
       @leaveLane="removeSwimmerFromLane"
-      @editSwimmer="editSwimmerCharacteristics"
-      @close="">
+      @editSwimmer="editSwimmerCharacteristics">
   </edit-inactive-swimmer-modal>
   <edit-active-swimmer-modal
       ref="editActiveSwimmerModal"
       @breakSwimming="removeSwimmerFromActiveList"
       @leaveLane="removeSwimmerFromLane"
       @editSwimmer="editSwimmerCharacteristics"
-      @minimizeSwimmer="minimizeSwimmer"
-      @close="">
+      @minimizeSwimmer="minimizeSwimmer">
   </edit-active-swimmer-modal>
   <edit-swimmer-characteristics-modal
       ref="editSwimmerCharacteristicsModal"
       @saveChanges="saveSwimmerCharacteristicsChanges"
-      @startSwimming="addSwimmerToActiveList"
-      @close="">
+      @startSwimming="addSwimmerToActiveList">
   </edit-swimmer-characteristics-modal>
 </template>
 
@@ -224,7 +221,22 @@ export default {
       this.$refs.displayInactiveSwimmerModal.openModal(swimmer);
     },
     async addSwimmerToActiveList(swimmer) {
+      if (!this._hasCharacteristics(swimmer)) {
+        this.editSwimmerCharacteristics(swimmer, true)
+        return
+      }
       await participantService.setActive(this.laneId, swimmer.id);
+    },
+    _hasCharacteristics(swimmer) {
+      const c = swimmer.characteristics
+      if (!c) return false
+      return c.swimwearColor !== 'none'
+          || c.googles       !== 'none'
+          || c.swimCap       !== 'none'
+          || c.hair          !== 'none'
+          || c.tattoo        === true
+          || c.headphones    === true
+          || (c.notes        ?? '') !== ''
     },
     async removeSwimmerFromLane(swimmer) {
       try {

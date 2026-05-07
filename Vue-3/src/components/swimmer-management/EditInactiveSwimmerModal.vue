@@ -24,6 +24,14 @@
         </span>
         <span class="text-body-2 text-medium-emphasis ml-3">{{ getMedal(swimmer.swimDistance).range }}</span>
       </div>
+      <v-row>
+        <v-col>
+          <v-btn @click="editSwimmer">
+            Schwimmer Merkmale bearbeiten
+            <v-icon class="ml-2">mdi-account-edit</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
       </v-card-text>
 
       <v-card-actions class="d-flex flex-wrap">
@@ -90,7 +98,11 @@ export default {
     leaveLane() {
       this.$emit('leaveLane', this.swimmer);
       this.closeModal();
-    }
+    },
+    editSwimmer() {
+      this.$emit('editSwimmer', this.swimmer);
+      this.closeModal();
+    },
   },
   computed: {},
 }

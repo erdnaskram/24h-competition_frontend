@@ -82,6 +82,7 @@
   </v-card>
 </template>
 <script>
+import { h } from 'vue';
 import GenderIcon from '../GenderIcon.vue';
 import GogglesIcon from '../../assets/content/swimmer-characteristics/goggles-fill.svg';
 import BikiniIcon from '../../assets/content/swimmer-characteristics/bikini.svg';
@@ -106,6 +107,9 @@ export default {
     TattooIcon,
     HeadphoneIcon,
     SwimSuitIcon,
+    HatEbernIcon: {
+      render: () => h('img', { src: '/hats/HatEbern.png', style: 'width:40px;height:40px;object-fit:contain;display:block;', alt: 'HatEbern' }),
+    },
   },
   props: {
     swimmer: {
@@ -185,7 +189,8 @@ export default {
       if (swimwearMap[c.swimwearType]) icons.push({ key: 'swimwear', component: swimwearMap[c.swimwearType], style: { fill: c.swimwearColor } });
       if (c.googles !== 'none')  icons.push({ key: 'googles',  component: 'GogglesIcon',   style: { fill: c.googles } });
       if (c.hair !== 'none')     icons.push({ key: 'hair',     component: 'HairIcon',      style: { color: c.hair } });
-      if (c.swimCap !== 'none')  icons.push({ key: 'swimCap',  component: 'HatIcon',       style: { fill: c.swimCap } });
+      if (c.swimCap === 'HatEbern') icons.push({ key: 'swimCap', component: 'HatEbernIcon', style: {} });
+      else if (c.swimCap !== 'none') icons.push({ key: 'swimCap', component: 'HatIcon', style: { fill: c.swimCap } });
       if (c.tattoo)              icons.push({ key: 'tattoo',   component: 'TattooIcon',    style: {} });
       if (c.headphones)          icons.push({ key: 'headphones', component: 'HeadphoneIcon', style: {} });
       return icons;
@@ -221,7 +226,7 @@ export default {
     },
     handleActiveSwimmerClicked() {
       if (this.longPressTriggered) return;
-      if (this.lastIncrementTime && (new Date().getTime() - this.lastIncrementTime) < this.incrementCoolDown) {
+      if (this.lastIncrementTime && (Date.now() - this.lastIncrementTime) < this.incrementCoolDown) {
         this.triggerShake();
         return;
       }
@@ -253,7 +258,7 @@ export default {
       this.swimmer.swimDistance  += 50;
       this.swimmer.lastCountTime  = Date.now();   // optimistisch, wird vom addParticipant-Event bestätigt
       const hasMedalUpgrade = this.checkMedalUpgrade(prevDistance, this.swimmer.swimDistance);
-      this.lastIncrementTime = new Date().getTime();
+      this.lastIncrementTime = Date.now();
       this.isCooldownActive = true;
       this.waitTimeProgress = 0;
       this.countDownCooldown();
@@ -332,6 +337,8 @@ export default {
 .swimmer-characteristics-icon {
   width: 40px;
   height: 40px;
+  display: block;
+  object-fit: contain;
 }
 
 .medal-overlay {

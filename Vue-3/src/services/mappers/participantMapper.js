@@ -36,6 +36,14 @@ const CLOTHING_TYPE_TO_BACKEND = {
     'bikini': 'Bikini',
 }
 
+const HAT_COLOR_TO_FRONTEND = {
+    'schonungen': 'HatEbern',
+}
+
+const HAT_COLOR_TO_BACKEND = {
+    'HatEbern': 'schonungen',
+}
+
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 /** Teilt "Max Mustermann" in { first: "Max", last: "Mustermann" } */
@@ -82,7 +90,7 @@ export function toFrontend(p) {
             swimwearType: CLOTHING_TYPE_TO_FRONTEND[p.clothingType] ?? 'board-shorts',
             swimwearColor: colorOrNone(p.clothingColor),
             googles: colorOrNone(p.googlesColor),
-            swimCap: colorOrNone(p.hatColor),
+            swimCap: colorOrNone(HAT_COLOR_TO_FRONTEND[p.hatColor] ?? p.hatColor),
             hair: colorOrNone(p.hairColor),
             tattoo: p.tattoo ?? false,
             headphones: p.headphones ?? false,
@@ -108,7 +116,7 @@ export function toBackendProperties(swimmer) {
         clothingColor: noneToEmpty(c.swimwearColor),
         googlesColor: noneToEmpty(c.googles),
         hairColor: noneToEmpty(c.hair),
-        hatColor: noneToEmpty(c.swimCap),
+        hatColor: noneToEmpty(HAT_COLOR_TO_BACKEND[c.swimCap] ?? c.swimCap),
         tattoo: c.tattoo ?? false,
         headphones: c.headphones ?? false,
         remarks: c.notes ?? '',
