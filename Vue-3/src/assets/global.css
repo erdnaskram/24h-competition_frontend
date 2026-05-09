@@ -1,4 +1,8 @@
 /* src/assets/global.css */
+html.text-size-80 {
+    font-size: 80%;
+}
+
 html.text-size-120 {
     font-size: 120%;
 }
