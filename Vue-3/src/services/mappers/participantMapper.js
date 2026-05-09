@@ -157,5 +157,6 @@ export function resultToFrontend(r) {
         last_name: splitName(r.name).last,
         lanes: r.lanes ?? 0,               // bleibt als Bahnen (× 25 m = Distanz)
         isActive: r.isActive ?? false,
+        lane: r.lane ?? null,
     }
 }

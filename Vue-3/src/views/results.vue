@@ -48,16 +48,16 @@
           :style="needsScroll ? { animationDuration: scrollDuration + 's' } : {}"
         >
           <div class="list-block">
-            <div v-for="r in sorted" :key="r.id" class="list-row" :class="{ 'row-active': r.isActive }">
-              <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive }"></span>
+            <div v-for="r in sorted" :key="r.id" class="list-row" :class="{ 'row-active': r.isActive && r.lane != null }">
+              <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive && r.lane != null }"></span>
               <span class="lr-id">{{ r.id }}</span>
               <span class="lr-name">{{ r.firstName }} {{ r.lastName }}</span>
               <span class="lr-dist">{{ fmtDist(r.lanes) }}</span>
             </div>
           </div>
           <div v-if="needsScroll" class="list-block" aria-hidden="true">
-            <div v-for="r in sorted" :key="'dup-' + r.id" class="list-row" :class="{ 'row-active': r.isActive }">
-              <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive }"></span>
+            <div v-for="r in sorted" :key="'dup-' + r.id" class="list-row" :class="{ 'row-active': r.isActive && r.lane != null }">
+              <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive && r.lane != null }"></span>
               <span class="lr-id">{{ r.id }}</span>
               <span class="lr-name">{{ r.firstName }} {{ r.lastName }}</span>
               <span class="lr-dist">{{ fmtDist(r.lanes) }}</span>
@@ -69,8 +69,8 @@
       <!-- Modus: Seiten blättern (?scroll=off) -->
       <template v-else>
         <div class="list-block">
-          <div v-for="r in visibleItems" :key="r.id" class="list-row" :class="{ 'row-active': r.isActive }">
-            <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive }"></span>
+          <div v-for="r in visibleItems" :key="r.id" class="list-row" :class="{ 'row-active': r.isActive && r.lane != null }">
+            <span class="lr-dot" :class="{ 'lr-dot-on': r.isActive && r.lane != null }"></span>
             <span class="lr-id">{{ r.id }}</span>
             <span class="lr-name">{{ r.firstName }} {{ r.lastName }}</span>
             <span class="lr-dist">{{ fmtDist(r.lanes) }}</span>
@@ -119,7 +119,7 @@ export default {
       return this.raw.length
     },
     activeCount() {
-      return this.raw.filter(r => r.isActive).length
+      return this.raw.filter(r => r.isActive && r.lane != null).length
     },
     fmtTotal() {
       return this.fmtDist(this.raw.reduce((s, r) => s + (r.lanes || 0), 0))
