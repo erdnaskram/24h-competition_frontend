@@ -16,6 +16,9 @@ export default defineConfig({
   plugins: [vue(), vuetify({
     autoImport: true
   }), svgLoader()],
+  server: {
+    allowedHosts: true
+  },
   test: {
     projects: [{
       extends: true,
