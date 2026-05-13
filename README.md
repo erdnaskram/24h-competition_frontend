@@ -5,9 +5,10 @@
 
   <p>Echtzeit-Auswertungssystem für 24-Stunden-Schwimmveranstaltungen</p>
 
+  ![Version](https://img.shields.io/badge/Version-1.0.0-success)
   ![Vue 3](https://img.shields.io/badge/Vue-3-42b883?logo=vue.js&logoColor=white)
   ![Vuetify](https://img.shields.io/badge/Vuetify-3-1867C0?logo=vuetify&logoColor=white)
-  ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+  ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
   ![Pinia](https://img.shields.io/badge/Pinia-2-FFD859?logo=pinia&logoColor=black)
   ![License](https://img.shields.io/badge/Lizenz-privat-lightgrey)
 
@@ -51,7 +52,7 @@ Dialog zur direkten Bahnzuweisung beim Check-In – inklusive Vorschlag einer be
 ![Schwimmer zuweisen](doku/screenshot-assign-swimmer.png)
 
 ### Ergebnisanzeige
-TV-Anzeigemodus mit automatisch scrollenden Ergebnissen, aktueller Uhrzeit und Gesamtdistanz.
+TV-Anzeigemodus mit automatisch scrollenden Ergebnissen, aktueller Uhrzeit, Gesamtdistanz aller Schwimmenden, Gesamtdistanz der aktuell aktiven Schwimmenden sowie einer Anzeige, wer sich gerade im Wasser befindet.
 
 ![Ergebnisanzeige](doku/screenshot-results-view.png)
 
@@ -67,7 +68,9 @@ TV-Anzeigemodus mit automatisch scrollenden Ergebnissen, aktueller Uhrzeit und G
 - Erkennungsmerkmale mit farbigen SVG-Icons: Badekleidung, Farbe, Brille, Kappe, Haarfarbe, Tattoo, Kopfhörer
 - Geschlechtsanzeige per Icon (m/w/d)
 - Medaillen-Anzeige für die U18-Sonderwertung
-- Variable Schriftgröße: 100 % / 120 % / 150 % – umschaltbar per Knopf
+- Aktive Schwimmer werden nach voraussichtlichem Ankommen (ETA) sortiert
+- Verbindungsstatus-Banner zeigt an, wenn die Verbindung zum Backend unterbrochen ist
+- Variable Schriftgröße: 80 % / 100 % / 120 % / 150 % – umschaltbar per Knopf
 - Responsive Navigation: direkte Bahnbuttons auf Desktop, Hamburger-Menü auf Mobilgeräten
 
 ### Check-In
@@ -78,7 +81,7 @@ TV-Anzeigemodus mit automatisch scrollenden Ergebnissen, aktueller Uhrzeit und G
 - „Bessere Bahn"-Vorschlag beim Zuweisen
 
 ### Ergebnisse & Verwaltung
-- Scrollende TV-Ergebnisanzeige mit aktueller Uhrzeit
+- Scrollende TV-Ergebnisanzeige mit aktueller Uhrzeit, Gesamtdistanz aller Schwimmenden, Gesamtdistanz der aktuell aktiven Schwimmenden und Anzeige der aktuell im Wasser befindlichen Personen
 - Admin-Ansicht zum Hinzufügen und Entfernen von Bahnen
 
 ---
@@ -93,7 +96,8 @@ TV-Anzeigemodus mit automatisch scrollenden Ergebnissen, aktueller Uhrzeit und G
 | State Management | [Pinia 2](https://pinia.vuejs.org/) |
 | Routing | [Vue Router 4](https://router.vuejs.org/) |
 | Icons | [Material Design Icons](https://materialdesignicons.com/), SVG-Komponenten via `vite-svg-loader` |
-| Tests | [Storybook 10](https://storybook.js.org/) + [Vitest](https://vitest.dev/) + Playwright (Chromium) |
+| Proxy | [Express](https://expressjs.com/) + [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware) (HTTP + WebSocket/SignalR) |
+
 
 ---
 
@@ -104,7 +108,7 @@ TV-Anzeigemodus mit automatisch scrollenden Ergebnissen, aktueller Uhrzeit und G
 - [Node.js](https://nodejs.org/) (v18 oder neuer)
 - npm
 
-### Setup
+### Frontend starten
 
 ```bash
 # In den Projektordner wechseln
@@ -122,11 +126,38 @@ Der Dev-Server ist nach dem Start unter `http://localhost:5173` erreichbar und d
 ### Weitere Befehle
 
 ```bash
-npm run build          # Produktions-Build erstellen
-npm run lint           # Code-Qualität prüfen (ESLint)
-npm run storybook      # Komponenten-Explorer auf Port 6006 starten
-npx vitest             # Tests ausführen (Storybook-basiert, Playwright/Chromium)
+npm run build            # Produktions-Build erstellen
+npm run lint             # Code-Qualität prüfen (ESLint)
+
 ```
+
+### Proxy starten
+
+Da das Backend kein eigenes Frontend ausliefert, übernimmt der Proxy diese Aufgabe vorübergehend. Er leitet alle HTTP-Anfragen und WebSocket-Verbindungen (SignalR) vom Frontend an das Backend weiter und ist netzwerkweit erreichbar.
+
+```bash
+cd proxy
+
+# Abhängigkeiten installieren (einmalig)
+npm install
+
+# Konfiguration anlegen
+cp .env.example .env
+# .env anpassen: BACKEND_URL, FRONTEND_URL, PORT
+
+# Proxy starten
+npm start
+```
+
+Der Proxy läuft standardmäßig auf Port `3001` und ist unter `http://0.0.0.0:3001` im lokalen Netz erreichbar.
+
+#### Konfiguration (`proxy/.env`)
+
+| Variable | Bedeutung | Standardwert |
+|---|---|---|
+| `BACKEND_URL` | Adresse des Backends (Laptop B) | `http://localhost:5000` |
+| `FRONTEND_URL` | Adresse des Vue Dev-Servers (für CORS) | `http://localhost:5173` |
+| `PORT` | Port des Proxy-Servers | `3001` |
 
 ---
 
@@ -136,8 +167,9 @@ npx vitest             # Tests ausführen (Storybook-basiert, Playwright/Chromiu
 - [x] Touch- und Mobile-Optimierung
 - [x] Check-In-Seite mit Suche, Filter und Bahnzuweisung
 - [x] Variable Schriftgröße für Zähleransicht
-- [ ] Backend-Anbindung & Datenbankintegration
-- [ ] Echtzeit-Synchronisierung zwischen Geräten (WebSocket / SSE)
+- [x] Backend-Anbindung über Proxy (HTTP + WebSocket/SignalR)
+- [x] Netzwerk-Proxy als Übergangslösung bis ein eigenes Backend-Frontend existiert
+- [ ] Echtzeit-Synchronisierung zwischen Geräten verfeinern
 - [ ] Docker-Deployment im lokalen Netz (`24hAuswertung.local`)
 - [ ] Öffentliche Veröffentlichung für andere Vereine
 
