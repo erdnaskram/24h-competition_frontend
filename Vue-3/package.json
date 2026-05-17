@@ -1,7 +1,7 @@
 {
-  "name": "24h-swim-tracker-frontend",
+  "name": "enduro-swim-frontend",
   "private": true,
-  "version": "0.4.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
