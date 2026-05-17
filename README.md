@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="Vue-3/public/BrowserSymbol.png" alt="24h Swim Tracker Logo" width="120"/>
+  <img src="Vue-3/public/BrowserSymbol.png" alt="Enduro Swim Logo" width="120"/>
 
-  <h1>24h Swim Tracker</h1>
+  <h1>EnduroSwim</h1>
 
   <p>Echtzeit-Auswertungssystem für 24-Stunden-Schwimmveranstaltungen</p>
 
@@ -18,7 +18,7 @@
 
 ## Über das Projekt
 
-Der **24h Swim Tracker** ist eine webbasierte Anwendung zur Verwaltung und Auswertung von 24-Stunden-Schwimmveranstaltungen. Zählerinnen und Zähler erfassen pro Bahn in Echtzeit die geschwommenen Längen, während eine Ergebnisansicht den aktuellen Stand aller Teilnehmenden anzeigt.
+**EnduroSwim** ist eine webbasierte Anwendung zur Verwaltung und Auswertung von 24-Stunden-Schwimmveranstaltungen. Zählerinnen und Zähler erfassen pro Bahn in Echtzeit die geschwommenen Längen, während eine Ergebnisansicht den aktuellen Stand aller Teilnehmenden anzeigt.
 
 Entwickelt für die **DLRG Ebern** – mit dem Ziel, das System später für beliebige Vereine und Veranstaltungen nutzbar zu machen.
 
